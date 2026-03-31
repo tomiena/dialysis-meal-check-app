@@ -939,13 +939,13 @@ export default function Home() {
           }}>
             <div style={{ fontSize: 13, fontWeight: "bold", color: "#5c3d1e", marginBottom: 10 }}>
               📅 {selectedDate === today ? "本日の合計" : `${formatDateLabel(selectedDate, today)}の合計`}
-              {todayStats.mealCount > 0 && (
+              {selectedDateMealCount > 0 && (
                 <span style={{ fontWeight: "normal", fontSize: 12, color: "#bbb", marginLeft: 8 }}>
-                  （{todayStats.mealCount}食分の記録）
+                  {selectedDateMealCount}食分の記録
                 </span>
               )}
             </div>
-            {todayStats.mealCount === 0 ? (
+            {selectedDateMealCount === 0 ? (
               <p style={{ fontSize: 13, color: "#ccc", textAlign: "center", padding: "8px 0" }}>
                 まだ記録がありません
               </p>
