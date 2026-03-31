@@ -1,4 +1,6 @@
-export function toDateStr() { return ""; }
+export function toDateStr(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
 export function parseDateLocal(dateStr: string) {
   return new Date(dateStr);
 }
