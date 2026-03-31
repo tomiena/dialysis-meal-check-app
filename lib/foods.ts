@@ -4,6 +4,10 @@ type Food = {
 
 export const FOODS: Food[] = [];
 
-export function getFoodRisk() {
-  return "ok";
+type Food = {
+  id: string;
+};
+
+export function getFoodRisk(food: Food) {
+  return { sodium: false, potassium: false };
 }
