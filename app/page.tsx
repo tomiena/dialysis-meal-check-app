@@ -953,22 +953,22 @@ export default function Home() {
               <div style={{ display: "flex", gap: 10 }}>
                 <div style={{
                   flex: 1, textAlign: "center", padding: "10px 8px",
-                  background: todayStats.totalWater >= 1500 ? "#e8f5e9" : todayStats.totalWater >= 1000 ? "#fff8e1" : "#ffebee",
+                  background: (todayStats as any).totalWater >= 1500 ? "#e8f5e9" : (todayStats as any).totalWater >= 1000 ? "#fff8e1" : "#ffebee",
                   borderRadius: 10,
                 }}>
                   <div style={{ fontSize: 11, color: "#888" }}>💧 水分</div>
                   <div style={{ fontSize: 20, fontWeight: "bold", color: "#1565c0" }}>
-                    {todayStats.totalWater}<span style={{ fontSize: 12, fontWeight: "normal" }}>ml</span>
+                    {(todayStats as any).totalWater}<span style={{ fontSize: 12, fontWeight: "normal" }}>ml</span>
                   </div>
                 </div>
                 <div style={{
                   flex: 1, textAlign: "center", padding: "10px 8px",
-                  background: todayStats.totalSalt <= 6 ? "#e8f5e9" : todayStats.totalSalt <= 8 ? "#fff8e1" : "#ffebee",
+                  background: (todayStats as any).totalSalt <= 6 ? "#e8f5e9" : (todayStats as any).totalSalt <= 8 ? "#fff8e1" : "#ffebee",
                   borderRadius: 10,
                 }}>
                   <div style={{ fontSize: 11, color: "#888" }}>🧂 塩分</div>
                   <div style={{ fontSize: 20, fontWeight: "bold", color: "#5c3d1e" }}>
-                    {todayStats.totalSalt.toFixed(1)}<span style={{ fontSize: 12, fontWeight: "normal" }}>g</span>
+                    {(todayStats as any).totalSalt.toFixed(1)}<span style={{ fontSize: 12, fontWeight: "normal" }}>g</span>
                   </div>
                 </div>
               </div>
