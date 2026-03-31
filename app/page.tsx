@@ -831,10 +831,13 @@ export default function Home() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           }}>
             <div style={{
-              textAlign: "center", padding: "18px", borderRadius: 12, marginBottom: 18,
-              background: STATUS[result.overall].bg,
-              border: `2px solid ${STATUS[result.overall].border}`,
-            }}>
+  textAlign: "center",
+  padding: "18px",
+  borderRadius: 12,
+  marginBottom: 18,
+  background: STATUS[result.overall].bg,
+  border: `2px solid ${STATUS[result.overall].border}`,
+}}>
               <div style={{ fontSize: 44 }}>{STATUS[result.overall].icon}</div>
               <div style={{ fontSize: 21, fontWeight: "bold", color: STATUS[result.overall].text, marginTop: 6 }}>
                 {result.overall === "ok"
