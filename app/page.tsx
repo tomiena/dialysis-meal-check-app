@@ -1077,8 +1077,8 @@ borderRadius: 14,
               <div style={{ marginTop: 16 }}>
                 <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>直近の検査結果と食事の関係</div>
                 {labRecords.map((lab) => {
-                  const pre = null;getMealsBeforeDateFromHistory(selectedDate, mealHistory) || { hasData: false };
-                  const hasData = Array.isArray(pre) && length > 0;
+                  
+                  
                   return (
                     <div key={lab.id} style={{
                       padding: "12px",
@@ -1097,13 +1097,15 @@ borderRadius: 14,
                           {lab.phosphorus}
                         </span>
                       </div>
-                      {hasData ? (
-                        <div style={{ fontSize: 12, color: "#666" }}>
-                          検査前3日の食事平均　💧 {0} ml　🧂 {0} g
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: 12, color: "#bbb" }}>検査前3日の食事データなし</div>
-                      )}
+                      <div style={{ fontSize: 12, color: "#bbb" }}>
+  検査前3日の食事データなし
+</div>
+                      
+                      
+                        
+                    
+                      
+                      
                     </div>
                   );
                 })}
