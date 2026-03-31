@@ -1,5 +1,7 @@
 export function toDateStr() { return ""; }
-export function parseDateLocal() { return new Date(); }
+export function parseDateLocal(dateStr: string) {
+  return new Date(dateStr);
+}
 
 export function getMealHistory() { return []; }
 export function saveMealHistory() {}
