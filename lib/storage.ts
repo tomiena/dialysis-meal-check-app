@@ -9,7 +9,9 @@ export function getMealHistory() { return []; }
 export function saveMealHistory() {}
 export function deleteMealById() {}
 
-export function getDailyStatsFromHistory() { return {}; }
+export function getDailyStatsFromHistory(date: string, history: any[]) {
+  return {};
+}
 export function getRecentAverageFromHistory() { return {}; }
 export function getMealsBeforeDateFromHistory() { return []; }
 
