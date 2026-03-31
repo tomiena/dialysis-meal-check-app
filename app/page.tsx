@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FOODS, getFoodRisk } from "@/lib/foods";
-import { MealItem, judgeMeal, JudgeResult } from "@/lib/judge";
+import { MealItem, judgeMeal } from "@/lib/judge";
 import { generateAdvice } from "@/lib/advice";
 import {
   toDateStr, parseDateLocal,
