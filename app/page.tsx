@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FOODS, getFoodRisk } from "@/lib/foods";
-import { MealItem, judgeMeal, JudgeResult } from "@/lib/judge";
-import { generateAdvice } from "@/lib/advice";
+import { FOODS, getFoodRisk } from "../lib/foods";
+import { MealItem, judgeMeal, JudgeResult } from "../lib/judge";
+import { generateAdvice } from "../lib/advice";
 import {
   toDateStr, parseDateLocal,
   getMealHistory, saveMealHistory, deleteMealById,
   getDailyStatsFromHistory, getRecentAverageFromHistory, getMealsBeforeDateFromHistory,
   getLabRecords, saveLabRecord,
   type Meal, type LabRecord,
-} from "@/lib/storage";
+} from "../lib/storage";
 
 // ─── 型定義 ──────────────────────────────────────────────
 type Portion  = { label: string; grams: number };
