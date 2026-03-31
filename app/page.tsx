@@ -373,7 +373,7 @@ export default function Home() {
   const [toast,  setToast]  = useState("");
 
   const resultRef = useRef<HTMLDivElement>(null);
-  const today = toDateStr();
+  const today = toDateStr(new Date());
 
   // 記録日（デフォルト：今日）
   const [selectedDate, setSelectedDate] = useState<string>(today);
