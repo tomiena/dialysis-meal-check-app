@@ -1077,7 +1077,7 @@ borderRadius: 14,
               <div style={{ marginTop: 16 }}>
                 <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>直近の検査結果と食事の関係</div>
                 {labRecords.map((lab) => {
-                  const pre = getMealsBeforeDateFromHistory(lab.date, 3, mealHistory);
+                  const pre = getMealsBeforeDateFromHistory(selectedDate, mealHistory);
                   return (
                     <div key={lab.id} style={{
                       padding: "12px",
