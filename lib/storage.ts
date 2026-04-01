@@ -79,6 +79,31 @@ export function getDailyStatsFromHistory(date: string, history: Meal[]) {
   return { totalWater, totalSodium, totalPotassium, totalPhosphorus, mealCount: meals.length };
 }
 
+export type DailyVitals = {
+  date: string;
+  weight?: number;       // kg
+  bpSystolic?: number;   // mmHg
+  bpDiastolic?: number;  // mmHg
+  pulse?: number;        // bpm
+};
+
+export function getDailyVitals(date: string): DailyVitals {
+  if (typeof window === "undefined") return { date };
+  try {
+    const all = JSON.parse(localStorage.getItem("dailyVitals") ?? "{}");
+    return all[date] ?? { date };
+  } catch { return { date }; }
+}
+
+export function saveDailyVitals(vitals: DailyVitals) {
+  if (typeof window === "undefined") return;
+  try {
+    const all = JSON.parse(localStorage.getItem("dailyVitals") ?? "{}");
+    all[vitals.date] = vitals;
+    localStorage.setItem("dailyVitals", JSON.stringify(all));
+  } catch {}
+}
+
 export function getLabRecords(): LabRecord[] {
   if (typeof window === "undefined") return [];
   try {

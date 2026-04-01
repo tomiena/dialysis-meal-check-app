@@ -23,6 +23,24 @@ function getStatus(value: number, okMax: number, cautionMax: number): string {
   return "ng";
 }
 
+/** Single source of truth for live recording totals */
+export function calculateTotals(items: MealItem[], drinkWater = 0) {
+  let foodWater = 0, sodium = 0, potassium = 0, phosphorus = 0;
+  for (const { food, amount } of items) {
+    foodWater  += food.water     * amount / 100;
+    sodium     += food.sodium    * amount / 100;
+    potassium  += food.potassium * amount / 100;
+    phosphorus += food.phosphorus * amount / 100;
+  }
+  return {
+    water:      Math.round(foodWater) + drinkWater,
+    foodWater:  Math.round(foodWater),
+    sodium:     Math.round(sodium),
+    potassium:  Math.round(potassium),
+    phosphorus: Math.round(phosphorus),
+  };
+}
+
 export function judgeMeal(items: MealItem[]): JudgeResult {
   let sodium = 0, potassium = 0, phosphorus = 0;
   for (const { food, amount } of items) {
