@@ -421,8 +421,14 @@ export default function Home() {
   // ─ 食品追加 ─
   const handlePortionSelect = (grams: number, portionLabel: string) => {
     if (!picker) return;
-    const food = FOODS.find((f) => f.id === picker.foodId);
-    if (!food) return;
+    const food = FOODS.find((f) => f.id === picker.foodId) ?? {
+      id: picker.foodId,
+      name: picker.label,
+      water: 0,
+      sodium: 0,
+      potassium: 0,
+      phosphorus: 0,
+    };
     setItems((prev) => [...prev, { food, amount: grams }]);
     setResult(null);
     setAdvice("");
@@ -527,15 +533,13 @@ export default function Home() {
   const sortedDates = Object.keys(historyByDate).sort((a, b) => b.localeCompare(a));
 
   return (
-    <main style={{ maxWidth: 500, margin: "0 auto", fontFamily: FONT, background: "#fdf8f0", minHeight: "100vh" }}>
+    <main style={{ width: "100%", maxWidth: 500, margin: "0 auto", fontFamily: FONT, background: "#fdf8f0", minHeight: "100vh" }}>
 
-      {/* ─── 固定ヘッダー ─── */}
+      {/* ─── 固定ヘッダー + タブ（1つのstickyコンテナ） ─── */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
       <div style={{
         background: "#fff",
         borderBottom: "1px solid #f0e8d8",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
       }}>
         <div style={{ textAlign: "center", padding: "14px 16px 8px" }}>
           <h1 style={{ fontSize: 20, fontWeight: "bold", color: "#3d2010" }}>🍱 食事チェック</h1>
@@ -598,9 +602,6 @@ export default function Home() {
         overflowX: "auto",
         background: "#fff",
         borderBottom: "2px solid #f0e8d8",
-        position: "sticky",
-        top: correlation ? 142 : 118,
-        zIndex: 9,
         WebkitOverflowScrolling: "touch",
         scrollbarWidth: "none",
       }}>
@@ -626,6 +627,7 @@ export default function Home() {
           </button>
         ))}
       </div>
+      </div>{/* end sticky wrapper */}
 
       {/* ─── コンテンツエリア ─── */}
       <div style={{ padding: "14px 12px 120px" }}>
@@ -648,9 +650,14 @@ export default function Home() {
             </p>
             <button
               onClick={async () => {
-  const res = await fetch("/api/checkout", { method: "POST" });
-  const data = await res.json();
-  window.location.href = data.url;
+  try {
+    const res = await fetch("/api/checkout", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else showToast("決済の準備に失敗しました");
+  } catch {
+    showToast("決済の準備に失敗しました");
+  }
 }}
               style={{
                 flexShrink: 0,
@@ -911,9 +918,14 @@ borderRadius: 14,
                 </p>
                 <button
                   onClick={async () => {
-  const res = await fetch("/api/checkout", { method: "POST" });
-  const data = await res.json();
-  window.location.href = data.url;
+  try {
+    const res = await fetch("/api/checkout", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else showToast("決済の準備に失敗しました");
+  } catch {
+    showToast("決済の準備に失敗しました");
+  }
 }}
                   style={{
                     width: "100%",
@@ -1238,9 +1250,14 @@ borderRadius: 14,
             </div>
             <button
               onClick={async () => {
-  const res = await fetch("/api/checkout", { method: "POST" });
-  const data = await res.json();
-  window.location.href = data.url;
+  try {
+    const res = await fetch("/api/checkout", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else showToast("決済の準備に失敗しました");
+  } catch {
+    showToast("決済の準備に失敗しました");
+  }
 }}
               style={{
                 width: "100%",
