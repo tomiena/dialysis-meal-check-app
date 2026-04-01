@@ -26,11 +26,18 @@ export function getDailyStatsFromHistory(date: string, history: any[]) {
   return { totalWater, totalSalt };
 }
 
-export function getLabRecords(): LabRecord[] { return []; }
+export function getLabRecords(): LabRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem("labRecords") ?? "[]");
+  } catch {
+    return [];
+  }
+}
 export function saveLabRecord(record: LabRecord) {
-  const data = getLabRecords()
-  data.push(record)
-  localStorage.setItem("labRecords", JSON.stringify(data))
+  const data = getLabRecords();
+  data.push({ ...record, id: record.id ?? crypto.randomUUID() });
+  localStorage.setItem("labRecords", JSON.stringify(data));
 }
 
 export type Meal = {

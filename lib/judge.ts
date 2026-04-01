@@ -11,6 +11,7 @@ export type NutrientResult = {
 };
 
 export type JudgeResult = {
+  overall: "ok" | "caution" | "ng";
   sodium: NutrientResult;
   potassium: NutrientResult;
   phosphorus: NutrientResult;
@@ -18,6 +19,7 @@ export type JudgeResult = {
 
 export function judgeMeal(items: MealItem[]): JudgeResult {
   return {
+    overall: "ok",
     sodium: { value: 0, status: "ok" },
     potassium: { value: 0, status: "ok" },
     phosphorus: { value: 0, status: "ok" },
