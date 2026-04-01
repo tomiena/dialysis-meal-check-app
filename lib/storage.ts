@@ -47,13 +47,13 @@ export function getRecentAverageFromHistory(days: number, history: Meal[]) {
   }
   const activeDates = Object.keys(byDate);
   if (activeDates.length === 0) {
-    return { totalWater: 0, totalSalt: 0, totalPotassium: 0, totalPhosphorus: 0 };
+    return { totalWater: 0, totalSodium: 0, totalPotassium: 0, totalPhosphorus: 0 };
   }
-  let water = 0, salt = 0, potassium = 0, phosphorus = 0;
+  let water = 0, sodium = 0, potassium = 0, phosphorus = 0;
   for (const d of activeDates) {
     for (const m of byDate[d]) {
       water     += m.total.water     ?? 0;
-      salt      += m.total.salt      ?? 0;
+      sodium    += m.total.sodium    ?? 0;
       potassium += m.total.potassium ?? 0;
       phosphorus+= m.total.phosphorus?? 0;
     }
@@ -61,7 +61,7 @@ export function getRecentAverageFromHistory(days: number, history: Meal[]) {
   const n = activeDates.length;
   return {
     totalWater:      Math.round(water / n),
-    totalSalt:       Math.round((salt / n) * 10) / 10,
+    totalSodium:     Math.round(sodium / n),
     totalPotassium:  Math.round(potassium / n),
     totalPhosphorus: Math.round(phosphorus / n),
   };
@@ -69,14 +69,14 @@ export function getRecentAverageFromHistory(days: number, history: Meal[]) {
 
 export function getDailyStatsFromHistory(date: string, history: Meal[]) {
   const meals = history.filter((meal) => meal.date === date);
-  let totalWater = 0, totalSalt = 0, totalPotassium = 0, totalPhosphorus = 0;
+  let totalWater = 0, totalSodium = 0, totalPotassium = 0, totalPhosphorus = 0;
   for (const meal of meals) {
     totalWater      += meal.total.water      ?? 0;
-    totalSalt       += meal.total.salt       ?? 0;
+    totalSodium     += meal.total.sodium     ?? 0;
     totalPotassium  += meal.total.potassium  ?? 0;
     totalPhosphorus += meal.total.phosphorus ?? 0;
   }
-  return { totalWater, totalSalt, totalPotassium, totalPhosphorus, mealCount: meals.length };
+  return { totalWater, totalSodium, totalPotassium, totalPhosphorus, mealCount: meals.length };
 }
 
 export function getLabRecords(): LabRecord[] {
@@ -99,7 +99,7 @@ export type Meal = {
   items: { name: string; foodId?: string; amount?: number }[];
   total: {
     water: number;
-    salt: number;
+    sodium: number;     // mg (NOT NaCl grams — single source of truth)
     potassium: number;
     phosphorus: number;
   };

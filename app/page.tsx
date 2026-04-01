@@ -406,7 +406,7 @@ function PastHistoryList({
             const totalK = meals.reduce((s, m) => s + (m.total.potassium ?? 0), 0);
             const totalP = meals.reduce((s, m) => s + (m.total.phosphorus ?? 0), 0);
             const totalW = meals.reduce((s, m) => s + (m.total.water ?? 0), 0);
-            const totalS = meals.reduce((s, m) => s + (m.total.salt ?? 0), 0);
+            const totalS = meals.reduce((s, m) => s + (m.total.sodium ?? 0), 0);
             const overalls = meals.map(m => m.overall).filter(Boolean);
             const worstOverall = overalls.includes("ng") ? "ng" : overalls.includes("caution") ? "caution" : overalls.length > 0 ? "ok" : null;
             return (
@@ -440,7 +440,7 @@ function PastHistoryList({
                 </div>
                 <div style={{ display: "flex", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 11, color: "#1565c0" }}>💧 {totalW}ml</span>
-                  <span style={{ fontSize: 11, color: "#5c3d1e" }}>🧂 {totalS.toFixed(1)}g</span>
+                  <span style={{ fontSize: 11, color: "#5c3d1e" }}>🧂 {(totalS * 2.54 / 1000).toFixed(1)}g</span>
                   <span style={{ fontSize: 11, color: totalK > 1650 ? "#e65100" : "#388e3c" }}>K {totalK}mg</span>
                   <span style={{ fontSize: 11, color: totalP > 660 ? "#e65100" : "#7b1fa2" }}>P {totalP}mg</span>
                 </div>
@@ -592,18 +592,26 @@ function CalendarPicker({
   );
 }
 
-// ─── 旧データ移行（nutrient 0 → 再計算） ─────────────────
+// ─── 旧データ移行（salt→sodium, zero→再計算） ────────────
 function migrateMeal(meal: Meal): Meal {
-  // If any nutrient is non-zero the meal already has real data
-  if (
-    meal.total.water > 0 ||
-    meal.total.salt > 0 ||
-    meal.total.potassium > 0 ||
-    meal.total.phosphorus > 0
-  ) return meal;
+  const raw = meal.total as any;
 
-  // Recompute from stored items (foodId + amount preferred; name + 100g fallback)
-  let water = 0, sodium = 0, potassium = 0, phosphorus = 0;
+  // Normalize: read whichever field exists (new: sodium mg; old: salt NaCl grams)
+  let water      = raw.water      ?? 0;
+  let sodium     = raw.sodium     !== undefined
+    ? raw.sodium                           // already in mg
+    : raw.salt !== undefined
+      ? Math.round(raw.salt / 2.54 * 1000) // convert NaCl grams → sodium mg
+      : 0;
+  let potassium  = raw.potassium  ?? 0;
+  let phosphorus = raw.phosphorus ?? 0;
+
+  // If any field has real data after normalisation, return the migrated meal
+  if (water > 0 || sodium > 0 || potassium > 0 || phosphorus > 0) {
+    return { ...meal, total: { water, sodium, potassium, phosphorus } };
+  }
+
+  // All zeros — recompute from stored items (foodId+amount exact; name+100g fallback)
   for (const item of meal.items) {
     const food = item.foodId
       ? FOODS.find((f) => f.id === item.foodId)
@@ -620,7 +628,7 @@ function migrateMeal(meal: Meal): Meal {
     ...meal,
     total: {
       water:      Math.round(water),
-      salt:       Math.round(sodium * 2.54 / 1000 * 10) / 10,
+      sodium:     Math.round(sodium),
       potassium:  Math.round(potassium),
       phosphorus: Math.round(phosphorus),
     },
@@ -716,13 +724,16 @@ export default function Home() {
 
   const cat = CATEGORIES[tab];
 
-  // ─ リアルタイム水分・塩分計算 ─
+  // ─ リアルタイム水分・ナトリウム計算（単一ソース） ─
+  // totalSodium は judgeMeal と同じ式 (mg)。表示時のみ食塩相当量(g)へ変換する
   const totalWater = Math.round(
     items.reduce((sum, item) => sum + item.food.water * item.amount / 100, 0)
   );
-  const totalSalt = Math.round(
-    items.reduce((sum, item) => sum + item.food.sodium * item.amount / 100 * 2.54 / 1000 * 10, 0)
-  ) / 10;
+  const totalSodium = Math.round(
+    items.reduce((sum, item) => sum + item.food.sodium * item.amount / 100, 0)
+  );
+  // 食塩相当量(g) = sodium(mg) × 2.54 ÷ 1000 — 表示専用
+  const saltG = Math.round(totalSodium * 2.54 / 1000 * 10) / 10;
 
   // 有料かどうか
   const isPremium = subscriptionStatus === "active";
@@ -748,7 +759,7 @@ export default function Home() {
         items: items.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
         total: {
           water:      totalWater,
-          salt:       totalSalt,
+          sodium:     r.sodium.value,     // mg — same value shown in judgment panel
           potassium:  r.potassium.value,
           phosphorus: r.phosphorus.value,
         },
@@ -771,7 +782,7 @@ export default function Home() {
 
   // ─ 水分・塩分ステータス ─
   const waterStatus = totalWater >= 1500 ? "ok" : totalWater >= 1000 ? "caution" : "low";
-  const saltStatus  = totalSalt  <= 6    ? "ok" : totalSalt  <= 8    ? "caution" : "high";
+  const saltStatus  = saltG <= 6 ? "ok" : saltG <= 8 ? "caution" : "high";
 
   const waterColor = waterStatus === "ok" ? "#1b5e20" : waterStatus === "caution" ? "#e65100" : "#b71c1c";
   const saltColor  = saltStatus  === "ok" ? "#1b5e20" : saltStatus  === "caution" ? "#e65100" : "#b71c1c";
@@ -844,7 +855,7 @@ export default function Home() {
           }}>
             <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>🧂 今回の塩分</div>
             <div style={{ fontSize: 22, fontWeight: "bold", color: saltColor, lineHeight: 1 }}>
-              {totalSalt.toFixed(1)}<span style={{ fontSize: 13, fontWeight: "normal" }}>g</span>
+              {saltG.toFixed(1)}<span style={{ fontSize: 13, fontWeight: "normal" }}>g</span>
             </div>
             <div style={{ fontSize: 10, color: "#aaa", marginTop: 2 }}>
               {saltStatus === "ok" ? "適正（6g以下）" : saltStatus === "caution" ? "やや多い" : "多すぎ"}
@@ -1258,12 +1269,12 @@ borderRadius: 14,
                   </div>
                   <div style={{
                     textAlign: "center", padding: "10px 8px",
-                    background: todayStats.totalSalt <= 6 ? "#e8f5e9" : todayStats.totalSalt <= 8 ? "#fff8e1" : "#ffebee",
+                    background: (todayStats.totalSodium * 2.54 / 1000) <= 6 ? "#e8f5e9" : (todayStats.totalSodium * 2.54 / 1000) <= 8 ? "#fff8e1" : "#ffebee",
                     borderRadius: 10,
                   }}>
                     <div style={{ fontSize: 11, color: "#888" }}>🧂 塩分</div>
                     <div style={{ fontSize: 20, fontWeight: "bold", color: "#5c3d1e" }}>
-                      {todayStats.totalSalt.toFixed(1)}<span style={{ fontSize: 12, fontWeight: "normal" }}>g</span>
+                      {(todayStats.totalSodium * 2.54 / 1000).toFixed(1)}<span style={{ fontSize: 12, fontWeight: "normal" }}>g</span>
                     </div>
                   </div>
                   <div style={{
@@ -1288,7 +1299,7 @@ borderRadius: 14,
                   </div>
                 </div>
                 {(() => {
-                  if (todayStats.totalSalt > 8)
+                  if ((todayStats.totalSodium * 2.54 / 1000) > 8)
                     return <p style={{ fontSize: 12, color: "#c62828", marginTop: 8, margin: "8px 0 0", textAlign: "center" }}>塩分が多めの1日です。明日は少し意識してみましょう</p>;
                   if (todayStats.totalPotassium > 1650)
                     return <p style={{ fontSize: 12, color: "#e65100", marginTop: 8, margin: "8px 0 0", textAlign: "center" }}>カリウムが多い日です。野菜の茹でこぼしを心がけましょう</p>;
@@ -1301,7 +1312,7 @@ borderRadius: 14,
           </div>
 
           {/* 直近平均 */}
-          {(avg3.totalWater > 0 || avg7.totalWater > 0 || avg3.totalSalt > 0 || avg7.totalSalt > 0 || avg3.totalPotassium > 0 || avg7.totalPotassium > 0) && (
+          {(avg3.totalWater > 0 || avg7.totalWater > 0 || avg3.totalSodium > 0 || avg7.totalSodium > 0 || avg3.totalPotassium > 0 || avg7.totalPotassium > 0) && (
             <div style={{
               background: "#fff",
               borderRadius: 14,
@@ -1322,7 +1333,7 @@ borderRadius: 14,
                 >
                   <span style={{ width: 60, fontSize: 13, color: "#888", flexShrink: 0 }}>{label}</span>
                   <span style={{ fontSize: 13, color: "#1565c0" }}>💧 {data.totalWater}ml</span>
-                  <span style={{ fontSize: 13, color: "#5c3d1e" }}>🧂 {data.totalSalt.toFixed(1)}g</span>
+                  <span style={{ fontSize: 13, color: "#5c3d1e" }}>🧂 {(data.totalSodium * 2.54 / 1000).toFixed(1)}g</span>
                   <span style={{ fontSize: 13, color: "#388e3c" }}>K {data.totalPotassium}mg</span>
                   <span style={{ fontSize: 13, color: "#7b1fa2" }}>P {data.totalPhosphorus}mg</span>
                 </div>
@@ -1484,7 +1495,7 @@ borderRadius: 14,
                   </div>
                   <div style={{ background: "#fff8e8", borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
                     <div style={{ fontSize: 10, color: "#888" }}>🧂 塩分</div>
-                    <div style={{ fontSize: 15, fontWeight: "bold", color: "#5c3d1e" }}>{meal.total.salt.toFixed(1)}<span style={{ fontSize: 11, fontWeight: "normal" }}>g</span></div>
+                    <div style={{ fontSize: 15, fontWeight: "bold", color: "#5c3d1e" }}>{(meal.total.sodium * 2.54 / 1000).toFixed(1)}<span style={{ fontSize: 11, fontWeight: "normal" }}>g</span></div>
                   </div>
                   <div style={{ background: meal.total.potassium > 550 ? "#fff3e0" : "#f1f8e9", borderRadius: 8, padding: "6px 8px", textAlign: "center" }}>
                     <div style={{ fontSize: 10, color: "#888" }}>🥦 カリウム</div>
