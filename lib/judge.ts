@@ -17,11 +17,36 @@ export type JudgeResult = {
   phosphorus: NutrientResult;
 };
 
+function getStatus(value: number, okMax: number, cautionMax: number): string {
+  if (value <= okMax) return "ok";
+  if (value <= cautionMax) return "caution";
+  return "ng";
+}
+
 export function judgeMeal(items: MealItem[]): JudgeResult {
+  let sodium = 0, potassium = 0, phosphorus = 0;
+  for (const { food, amount } of items) {
+    sodium     += food.sodium     * amount / 100;
+    potassium  += food.potassium  * amount / 100;
+    phosphorus += food.phosphorus * amount / 100;
+  }
+  sodium     = Math.round(sodium);
+  potassium  = Math.round(potassium);
+  phosphorus = Math.round(phosphorus);
+
+  const sodiumStatus     = getStatus(sodium,     700,  1050);
+  const potassiumStatus  = getStatus(potassium,  550,   825);
+  const phosphorusStatus = getStatus(phosphorus, 220,   330);
+
+  const statuses = [sodiumStatus, potassiumStatus, phosphorusStatus];
+  const overall = statuses.includes("ng") ? "ng"
+    : statuses.includes("caution") ? "caution"
+    : "ok";
+
   return {
-    overall: "ok",
-    sodium: { value: 0, status: "ok" },
-    potassium: { value: 0, status: "ok" },
-    phosphorus: { value: 0, status: "ok" },
+    overall,
+    sodium:     { value: sodium,     status: sodiumStatus },
+    potassium:  { value: potassium,  status: potassiumStatus },
+    phosphorus: { value: phosphorus, status: phosphorusStatus },
   };
 }

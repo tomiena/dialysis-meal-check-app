@@ -49,3 +49,38 @@ export function generateAdvice(result: JudgeResult): string {
 
   return "今日も記録できました。続けることが大切です。";
 }
+
+export function generateProfessionalAdvice(result: JudgeResult): string {
+  const { overall, sodium, potassium, phosphorus } = result;
+
+  if (overall === "ok") {
+    return "今回の食事内容はナトリウム・カリウム・リンのいずれも目標範囲内に収まっています。透析患者さんにとって食事管理は治療の一部です。この調子で毎食の記録を続け、体調の変化を主治医や栄養士に共有しましょう。";
+  }
+
+  if (overall === "ng") {
+    if (sodium.status === "ng" && potassium.status === "ng") {
+      return `塩分（${sodium.value}mg）とカリウム（${potassium.value}mg）がともに基準を超えています。汁物を半分残す・野菜は必ず茹でこぼすだけで大きく改善できます。次の食事から一つずつ取り組んでみてください。`;
+    }
+    if (sodium.status === "ng") {
+      return `今回の塩分は${sodium.value}mgで1食の目安700mgを超えています。塩分過多は口渇・体重増加・血圧上昇につながります。汁物を残す・醤油や味噌を控えるだけで改善できます。次の食事で意識してみましょう。`;
+    }
+    if (potassium.status === "ng") {
+      return `カリウムが${potassium.value}mgと基準を超えています。カリウムの蓄積は不整脈のリスクを高めます。いも類・バナナ・生野菜を控え、野菜は必ず茹でてから食べることでカリウムを効果的に減らせます。`;
+    }
+    if (phosphorus.status === "ng") {
+      return `リンが${phosphorus.value}mgと基準を超えています。リンの蓄積は骨や血管に悪影響を与えます。乳製品・加工食品・ナッツ類を控え、リン吸着薬を処方されている場合は食事と一緒に服用しましょう。`;
+    }
+  }
+
+  if (sodium.status === "caution") {
+    return `塩分が${sodium.value}mgとやや多めです。汁物を半分残す・漬物を控えるなど小さな工夫を積み重ねることが体の負担を減らします。透析間の体重増加が気になる場合は特に意識してみてください。`;
+  }
+  if (potassium.status === "caution") {
+    return `カリウムが${potassium.value}mgとやや高めです。野菜の茹でこぼし（ゆで汁は捨てる）を習慣にするだけで30〜40%減らせます。生野菜サラダをおひたしに変えるだけでも効果的です。`;
+  }
+  if (phosphorus.status === "caution") {
+    return `リンが${phosphorus.value}mgとやや高めです。チーズ・牛乳・加工食品に多く含まれます。リン吸着薬を処方されている場合は毎食しっかり服用することが重要です。次回の採血でリン値を確認しましょう。`;
+  }
+
+  return "今回の食事内容を記録しました。継続的な記録が体調管理の第一歩です。気になる点は次回の受診時に栄養士にご相談ください。";
+}

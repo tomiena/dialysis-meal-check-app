@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FOODS, getFoodRisk } from "@/lib/foods";
 import { MealItem, judgeMeal } from "@/lib/judge";
-import { generateAdvice } from "@/lib/advice";
+import { generateAdvice, generateProfessionalAdvice } from "@/lib/advice";
 import {
   toDateStr,
   parseDateLocal,
@@ -379,6 +379,7 @@ export default function Home() {
   const [picker, setPicker] = useState<FoodBtn | null>(null);
   const [result, setResult] = useState<any>(null);
   const [advice, setAdvice] = useState("");
+  const [proAdvice, setProAdvice] = useState("");
   const [toast,  setToast]  = useState("");
 
   const resultRef = useRef<HTMLDivElement>(null);
@@ -433,6 +434,7 @@ export default function Home() {
     setItems((prev) => [...prev, { food, amount: grams }]);
     setResult(null);
     setAdvice("");
+    setProAdvice("");
     setMealSavedForCurrentJudge(false);
     showToast(`${picker.label}（${portionLabel}）を追加しました`);
     setPicker(null);
@@ -442,12 +444,14 @@ export default function Home() {
     setItems((prev) => prev.filter((_, idx) => idx !== i));
     setResult(null);
     setAdvice("");
+    setProAdvice("");
   };
 
   const handleReset = () => {
     setItems([]);
     setResult(null);
     setAdvice("");
+    setProAdvice("");
     setMealSavedForCurrentJudge(false);
     setTab(0);
   };
@@ -472,8 +476,10 @@ export default function Home() {
     if (items.length === 0) return;
     const r = judgeMeal(items);
     const adviceText = generateAdvice(r);
+    const proAdviceText = generateProfessionalAdvice(r);
     setResult(r);
     setAdvice(adviceText);
+    setProAdvice(proAdviceText);
 
     const willSave = isPremium || selectedDateMealCount < 3;
     if (willSave) {
@@ -887,6 +893,11 @@ borderRadius: 14,
               <p style={{ fontSize: 16, color: "#5c3d1e", lineHeight: 1.85, whiteSpace: "pre-line", margin: 0 }}>
                 {advice}
               </p>
+              {proAdvice && (
+                <p style={{ fontSize: 13, color: "#7a5c3a", lineHeight: 1.75, marginTop: 10, marginBottom: 0, paddingTop: 10, borderTop: "1px solid #e8d5b7" }}>
+                  {proAdvice}
+                </p>
+              )}
             </div>
             <p style={{ fontSize: 12, color: "#ccc", lineHeight: 1.7, marginTop: 14 }}>
               📌 1食の目安：塩分700mg以下 / カリウム550mg以下 / リン220mg以下<br />
