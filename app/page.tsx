@@ -685,6 +685,7 @@ export default function Home() {
   const [showLabForm,  setShowLabForm]  = useState(false);
   const [labInput,     setLabInput]     = useState({ date: today, potassium: "", phosphorus: "" });
   const [subscriptionStatus, setSubscriptionStatus] = useState<"free" | "active">("free");
+  const [showPremiumActivated, setShowPremiumActivated] = useState(false);
   const [mealSavedForCurrentJudge, setMealSavedForCurrentJudge] = useState(false);
   const [showAllLabRecords, setShowAllLabRecords] = useState(false);
   const [drinkWater, setDrinkWater] = useState(0);
@@ -699,8 +700,11 @@ export default function Home() {
     setLabRecords(getLabRecords().slice().reverse());
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("paid") === "success") {
-      localStorage.setItem("isPaidUser", "true");
+    if (params.get("paid") === "success" && document.referrer.includes("stripe.com")) {
+      if (localStorage.getItem("isPaidUser") !== "true") {
+        localStorage.setItem("isPaidUser", "true");
+        setShowPremiumActivated(true);
+      }
       params.delete("paid");
       const clean = params.toString();
       window.history.replaceState({}, "", clean ? `?${clean}` : window.location.pathname);
@@ -1200,6 +1204,12 @@ export default function Home() {
             )}
 
             {/* Upsell banner */}
+            {showPremiumActivated && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "10px 14px", marginBottom: 14, background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12 }}>
+                <p style={{ fontSize: 13, color: "#166534", fontWeight: "bold", margin: 0 }}>✓ プレミアムプランが有効になりました</p>
+                <button onClick={() => setShowPremiumActivated(false)} style={{ fontSize: 16, color: "#166534", background: "none", border: "none", cursor: "pointer", lineHeight: 1, padding: 0 }}>×</button>
+              </div>
+            )}
             {!isPremium && (
               <>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", marginBottom: 6, background: "#fffbf0", border: "1px solid #f0ddb0", borderRadius: 12 }}>
@@ -1216,6 +1226,16 @@ export default function Home() {
                   </button>
                 </div>
               </>
+            )}
+            {isPremium && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", marginBottom: 14, background: "#fffbf0", border: "1px solid #f0ddb0", borderRadius: 12 }}>
+                <p style={{ fontSize: 12, color: "#8a6020", lineHeight: 1.5, margin: 0, flex: 1 }}>
+                  無理なく続けられる<br />記録を応援します
+                </p>
+                <button disabled style={{ flexShrink: 0, padding: "8px 12px", fontSize: 11, fontWeight: "bold", background: "#a0c8a0", color: "#fff", border: "none", borderRadius: 8, cursor: "default", fontFamily: FONT, lineHeight: 1.5 }}>
+                  プレミアム利用中
+                </button>
+              </div>
             )}
 
             {/* ④ 今日の食事一覧 */}
