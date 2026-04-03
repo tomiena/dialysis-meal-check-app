@@ -697,6 +697,9 @@ export default function Home() {
   useEffect(() => {
     setMealHistory(getMealHistory().map(migrateMeal));
     setLabRecords(getLabRecords().slice().reverse());
+    if (localStorage.getItem("isPaidUser") === "true") {
+      setSubscriptionStatus("active");
+    }
   }, []);
 
   useEffect(() => {
@@ -832,7 +835,13 @@ export default function Home() {
   };
 
   const goCheckout = () => {
+    localStorage.setItem("isPaidUser", "true");
     window.location.href = "https://buy.stripe.com/dRmaEZ63n67N46g6znefC00";
+  };
+
+  const unlockPremium = () => {
+    localStorage.setItem("isPaidUser", "true");
+    setSubscriptionStatus("active");
   };
 
   const historyByDate = mealHistory
@@ -1184,14 +1193,21 @@ export default function Home() {
 
             {/* Upsell banner */}
             {!isPremium && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", marginBottom: 14, background: "#fffbf0", border: "1px solid #f0ddb0", borderRadius: 12 }}>
-                <p style={{ fontSize: 12, color: "#8a6020", lineHeight: 1.5, margin: 0, flex: 1 }}>
-                  無理なく続けられる<br />記録を応援します
-                </p>
-                <button onClick={goCheckout} style={{ flexShrink: 0, padding: "8px 12px", fontSize: 11, fontWeight: "bold", background: "#c17a3a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: FONT, lineHeight: 1.5 }}>
-                  有料プランを見る
-                </button>
-              </div>
+              <>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 14px", marginBottom: 6, background: "#fffbf0", border: "1px solid #f0ddb0", borderRadius: 12 }}>
+                  <p style={{ fontSize: 12, color: "#8a6020", lineHeight: 1.5, margin: 0, flex: 1 }}>
+                    無理なく続けられる<br />記録を応援します
+                  </p>
+                  <button onClick={goCheckout} style={{ flexShrink: 0, padding: "8px 12px", fontSize: 11, fontWeight: "bold", background: "#c17a3a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: FONT, lineHeight: 1.5 }}>
+                    有料プランを見る
+                  </button>
+                </div>
+                <div style={{ textAlign: "right", marginBottom: 14 }}>
+                  <button onClick={unlockPremium} style={{ fontSize: 11, color: "#aaa", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", fontFamily: FONT }}>
+                    購入済みの方はこちら
+                  </button>
+                </div>
+              </>
             )}
 
             {/* ④ 今日の食事一覧 */}
