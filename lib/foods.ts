@@ -43,6 +43,7 @@ export const FOODS: Food[] = [
   { id: "black_tea",        name: "紅茶",                     category: "drink", image: "/images/foods/black_tea.png",        water: 100, sodium:  1, potassium:   8, phosphorus:   2 },
   { id: "coffee",           name: "コーヒー",                 category: "drink", image: "/images/foods/coffee.png",           water:  99, sodium:  1, potassium:  65, phosphorus:   7 },
   { id: "orange_juice",     name: "オレンジジュース（100%）", category: "drink", image: "/images/foods/orange_juice.png",     water:  89, sodium:  1, potassium: 200, phosphorus:  13 },
+  { id: "apple_juice",      name: "リンゴジュース",           category: "drink", image: "/images/foods/apple_juice.png",      water:  88, sodium:  1, potassium: 100, phosphorus:  10 },
   { id: "cola",             name: "コーラ",                   category: "drink", image: "/images/foods/cola.png",             water:  89, sodium:  4, potassium:   2, phosphorus:  12 },
   { id: "beer",             name: "ビール",                   category: "drink", image: "/images/foods/beer.png",             water:  93, sodium:  4, potassium:  34, phosphorus:  15 },
 
@@ -66,6 +67,7 @@ export const FOODS: Food[] = [
   { id: "natto",            name: "納豆",               category: "dairy_egg_soy", image: "/images/foods/natto.png",  water: 60, sodium:   2, potassium: 660, phosphorus: 190 },
   { id: "edamame",          name: "枝豆",               category: "dairy_egg_soy", image: "/images/foods/edamame.png",water: 72, sodium:   1, potassium: 490, phosphorus: 170 },
   { id: "milk",             name: "牛乳",               category: "dairy_egg_soy", image: "/images/foods/milk.png",   water: 87, sodium:  40, potassium: 150, phosphorus:  90 },
+  { id: "butter",           name: "バター",             category: "dairy_egg_soy", image: "/images/foods/butter.png", water: 16, sodium: 750, potassium:  28, phosphorus:  17 },
   { id: "cheese",           name: "チーズ（プロセス）", category: "dairy_egg_soy", image: "/images/foods/cheese.png", water: 45, sodium: 800, potassium:  90, phosphorus: 630 },
   { id: "yogurt",           name: "ヨーグルト",         category: "dairy_egg_soy", image: "/images/foods/yogurt.png", water: 87, sodium:  40, potassium: 170, phosphorus: 100 },
 
@@ -79,8 +81,11 @@ export const FOODS: Food[] = [
   { id: "lettuce",          name: "レタス",       category: "vegetable", image: "/images/foods/lettuce.png",       water: 96, sodium:  4, potassium: 200, phosphorus:  22 },
   { id: "eggplant",         name: "なす",         category: "vegetable", image: "/images/foods/eggplant.png",      water: 93, sodium:  0, potassium: 220, phosphorus:  30 },
   { id: "green_pepper",     name: "ピーマン",     category: "vegetable", image: "/images/foods/green_pepper.png",  water: 93, sodium:  1, potassium: 190, phosphorus:  22 },
+  { id: "red_pepper",       name: "赤パプリカ",   category: "vegetable", image: "/images/foods/red_pepper.png",    water: 91, sodium:  1, potassium: 210, phosphorus:  22 },
+  { id: "yellow_pepper",    name: "黄パプリカ",   category: "vegetable", image: "/images/foods/yellow_pepper.png", water: 92, sodium:  1, potassium: 200, phosphorus:  22 },
   { id: "daikon",           name: "大根",         category: "vegetable", image: "/images/foods/daikon.png",        water: 95, sodium: 16, potassium: 230, phosphorus:  18 },
   { id: "onion",            name: "玉ねぎ",       category: "vegetable", image: "/images/foods/onion.png",         water: 90, sodium:  2, potassium: 150, phosphorus:  31 },
+  { id: "sliced_onion",     name: "玉ねぎスライス",category: "vegetable", image: "/images/foods/sliced_onion.png",  water: 90, sodium:  2, potassium: 150, phosphorus:  31 },
   { id: "carrot",           name: "にんじん",     category: "vegetable", image: "/images/foods/carrot.png",        water: 89, sodium: 30, potassium: 270, phosphorus:  26 },
   { id: "kabocha",          name: "かぼちゃ",     category: "vegetable", image: "/images/foods/kabocha.png",       water: 87, sodium:  1, potassium: 450, phosphorus:  43 },
   { id: "potato",           name: "じゃがいも",   category: "vegetable", image: "/images/foods/potato.png",        water: 81, sodium:  1, potassium: 410, phosphorus:  47 },
@@ -90,6 +95,8 @@ export const FOODS: Food[] = [
   { id: "asparagus",        name: "アスパラガス", category: "vegetable", image: "/images/foods/asparagus.png",     water: 92, sodium:  2, potassium: 270, phosphorus:  60 },
 
   // ── seasoning 調味料 ───────────────────────────────────────
+  { id: "garlic",           name: "にんにく",     category: "seasoning",    image: "/images/foods/garlic.png",           water: 60, sodium:    5, potassium: 530, phosphorus: 170 },
+  { id: "ginger",           name: "しょうが",     category: "seasoning",    image: "/images/foods/ginger.png",           water: 91, sodium:    4, potassium: 270, phosphorus:  25 },
   { id: "soy_sauce",        name: "醤油",         category: "seasoning",    image: "/images/foods/soy_sauce.png",        water: 67, sodium: 7000, potassium: 390, phosphorus: 170 },
   { id: "miso",             name: "みそ",         category: "seasoning",    image: "/images/foods/miso.png",             water: 43, sodium: 4200, potassium: 380, phosphorus: 170 },
   { id: "salt",             name: "塩",           category: "seasoning",    image: "/images/foods/salt.png",             water:  0, sodium:39000, potassium: 100, phosphorus:   0 },
@@ -97,7 +104,6 @@ export const FOODS: Food[] = [
   { id: "ketchup",          name: "ケチャップ",   category: "seasoning",    image: "/images/foods/ketchup.png",          water: 66, sodium: 1200, potassium: 420, phosphorus:  40 },
   { id: "salad_dressing",   name: "ドレッシング", category: "seasoning",    image: "/images/foods/salad_dressing.png",   water: 50, sodium:  900, potassium:  60, phosphorus:  30 },
   { id: "vinegar",          name: "酢（米酢）",   category: "seasoning",    image: "/images/foods/vinegar.png",          water: 93, sodium:    6, potassium:   4, phosphorus:   6 },
-  { id: "butter",           name: "バター",       category: "seasoning",    image: "/images/foods/butter.png",           water: 16, sodium:  750, potassium:  28, phosphorus:  17 },
 
   // ── prepared_food 調理済み・惣菜 ──────────────────────────
   { id: "karaage",          name: "から揚げ",       category: "prepared_food", image: "/images/foods/karaage.png",         water: 54, sodium: 400, potassium: 290, phosphorus: 230 },
