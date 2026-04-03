@@ -831,13 +831,8 @@ export default function Home() {
     });
   };
 
-  const goCheckout = async () => {
-    try {
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else showToast("決済の準備に失敗しました");
-    } catch { showToast("決済の準備に失敗しました"); }
+  const goCheckout = () => {
+    window.location.href = "https://buy.stripe.com/dRmaEZ63n67N46g6znefC00";
   };
 
   const historyByDate = mealHistory
