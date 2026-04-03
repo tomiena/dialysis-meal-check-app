@@ -315,8 +315,13 @@ function FoodButton({ btn, onTap, disabled }: { btn: FoodBtn; onTap: () => void;
           {riskBadge.label}
         </span>
       )}
-      <img src={food?.image ?? ""} alt={btn.label} width={44} height={44} style={{ objectFit: "contain", display: "block" }} />
-      <span style={{ fontSize: 14, fontWeight: "bold", color: "#3d2010", textAlign: "center", lineHeight: 1.3 }}>
+      <div style={{ width: 64, height: 64, marginBottom: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {food?.image
+          ? <img src={food.image} alt={btn.label} width={64} height={64} style={{ objectFit: "contain", display: "block" }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+          : <div style={{ width: 64, height: 64, background: "#f0ebe5", borderRadius: 8 }} />
+        }
+      </div>
+      <span style={{ fontSize: 14, fontWeight: "bold", color: "#3d2010", textAlign: "center", lineHeight: 1.3, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {btn.label}
       </span>
       <span style={{ fontSize: 11, color: "#c0b0a0" }}>{btn.portions[0].label}〜</span>
