@@ -1196,26 +1196,27 @@ export default function Home() {
   </p>
 </div>
 <h1 style={{ color: "red" }}>CTAここ絶対</h1>
+
 {/* ③ CTA */}
 {true ? (
   <div>
     <div style={{ marginBottom: "12px" }}>
-  <button
-    onClick={() => setShowFreeInput(true)}
-    style={{
-      width: "100%",
-      padding: "14px",
-      borderRadius: "12px",
-      border: "2px solid #22c55e",
-      background: "#f0fdf4",
-      fontSize: "16px",
-      fontWeight: "bold",
-      color: "#166534",
-      cursor: "pointer"
-    }}
-  >
-    👉 自由入力で追加VISIBLE123
-  </button>
+ <button
+  onClick={() => setShowFreeInput(true)}
+  style={{
+    width: "100%",
+    padding: "14px",
+    borderRadius: "12px",
+    border: "2px solid #22c55e",
+    background: "#f0fdf4",
+    fontSize: "16px",
+    fontWeight: "bold",
+    color: "#166534",
+    cursor: "pointer"
+  }}
+>
+  自由入力で追加
+</button>
 </div>
 
     <button onClick={() => setShowRecorder(true)}>
