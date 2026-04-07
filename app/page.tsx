@@ -1200,69 +1200,86 @@ export default function Home() {
 {/* ③ CTA */}
 {true ? (
   <div>
-    <div style={{ marginBottom: "12px" }}>
- <button
-  onClick={() => setShowFreeInput(true)}
-  style={{
-    width: "100%",
-    padding: "14px",
-    borderRadius: "12px",
-    border: "2px solid #22c55e",
-    background: "#f0fdf4",
-    fontSize: "16px",
-    fontWeight: "bold",
-    color: "#166534",
-    cursor: "pointer"
-  }}
->
-  自由入力で追加
-</button>
-</div>
 
-    <button onClick={() => setShowRecorder(true)}>
+    <div style={{ marginBottom: "12px" }}>
+      <button
+        onClick={() => setShowFreeInput(true)}
+        style={{
+          width: "100%",
+          padding: "14px",
+          borderRadius: "12px",
+          border: "2px solid #22c55e",
+          background: "#f0fdf4",
+          fontSize: "16px",
+          fontWeight: "bold",
+          color: "#166534",
+          cursor: "pointer"
+        }}
+      >
+        自由入力で追加
+      </button>
+    </div>
+
+    <button
+      onClick={() => setShowRecorder(true)}
+      style={{
+        width: "100%",
+        padding: "18px",
+        fontSize: 18,
+        fontWeight: "bold",
+        background: "linear-gradient(135deg, #22c55e, #16a34a)",
+        color: "#fff",
+        border: "none",
+        borderRadius: 12,
+        cursor: "pointer",
+        marginBottom: 16
+      }}
+    >
       ＋ 食事を記録する
     </button>
 
     {showFreeInput && (
-  <div
-    style={{
-      marginTop: 12,
-      padding: 12,
-      border: "1px solid #ddd",
-      borderRadius: 12
-    }}
-  >
-    <input
-      type="text"
-      placeholder="食べたものを入力"
-      value={freeText}
-      onChange={(e) => setFreeText(e.target.value)}
-      style={{
-        width: "100%",
-        padding: 10,
-        marginBottom: 8
-      }}
-    />
+      <div style={{
+        marginTop: 12,
+        padding: 12,
+        border: "1px solid #ddd",
+        borderRadius: 12
+      }}>
+        <input
+          type="text"
+          placeholder="食べたものを入力"
+          value={freeText}
+          onChange={(e) => setFreeText(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            marginBottom: 8
+          }}
+        />
 
-    <button
-      onClick={() => {
-        alert(`入力された内容：${freeText}`)
-        setFreeText("")
-        setShowFreeInput(false)
-      }}
-      style={{
-        width: "100%",
-        padding: 10
-      }}
-    >
-      追加する
-    </button>
-  </div>
-)}
+        <button
+          onClick={() => {
+            alert(`入力された内容：${freeText}`)
+            setFreeText("")
+            setShowFreeInput(false)
+          }}
+          style={{
+            width: "100%",
+            padding: 10
+          }}
+        >
+          追加する
+        </button>
+      </div>
+    )}
+
   </div>
 ) : (
   <div>🔒 ロック表示</div>
 )}
+    </button>
+
+    {showFreeInput &&
 
             {/* Upsell banner */}
             {showPremiumActivated && (
