@@ -1301,45 +1301,12 @@ export default function Home() {
       ＋ 食事を記録する
     </button>
 
-    {showFreeInput && (
-      <div style={{
-        marginTop: 12,
-        padding: 12,
-        border: "1px solid #ddd",
-        borderRadius: 12
-      }}>
-        <input
-          type="text"
-          placeholder="食べたものを入力"
-          value={freeText}
-          onChange={(e) => setFreeText(e.target.value)}
-          style={{
-            width: "100%",
-            padding: 10,
-            marginBottom: 8
-          }}
-        />
-
-        <button
-          onClick={() => {
-            alert(`入力された内容：${freeText}`)
-            setFreeText("")
-            setShowFreeInput(false)
-          }}
-          style={{
-            width: "100%",
-            padding: 10
-          }}
-        >
-          追加する
-        </button>
-      </div>
-    )}
-
   </div>
 ) : (
   <div>🔒 ロック表示</div>
 )}
+      <button
+        onClick={() =>
     </button>
 
     {showFreeInput &&
