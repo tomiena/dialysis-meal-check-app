@@ -1224,7 +1224,6 @@ export default function Home() {
       ＋ 食事を記録する
     </button>
   </div>
-    
             ) : (
               <div style={{ textAlign: "center", padding: "12px 0 16px", color: "#aaa", fontSize: 13 }}>
                 🔒 この日の記録は有料プランでご利用いただけます
