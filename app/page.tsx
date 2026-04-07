@@ -1195,7 +1195,7 @@ export default function Home() {
     {getDailyComment()}
   </p>
 </div>
-
+<h1 style={{ color: "red" }}>CTAここ絶対</h1>
 {/* ③ CTA */}
 {true ? (
   <div>
