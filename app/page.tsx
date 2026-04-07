@@ -1207,25 +1207,24 @@ export default function Home() {
     自由入力で追加
   </button>
 </div>
-
-    <button
-      onClick={() => setShowRecorder(true)}
-      style={{
-        width: "100%",
-        padding: "18px",
-        fontSize: 18,
-        fontWeight: "bold",
-        background: "linear-gradient(135deg, #22c55e, #16a34a)",
-        color: "#fff",
-        border: "none",
-        borderRadius: 12,
-        cursor: "pointer",
-        marginBottom: 16,
-        boxShadow: "0 4px 14px rgba(46,125,50,0.28)",
-      }}
-    >
-      ＋ 自由入力で追加食事を記録する
-    </button>
+<button
+  onClick={() => setShowRecorder(true)}
+  style={{
+    width: "100%",
+    padding: "18px",
+    fontSize: 18,
+    fontWeight: "bold",
+    background: "linear-gradient(135deg, #22c55e, #16a34a)",
+    color: "#fff",
+    border: "none",
+    borderRadius: 12,
+    cursor: "pointer",
+    marginBottom: 16
+  }}
+>
+  ＋ 食事を記録する
+</button>
+    
   </div>
             ) : (
               <div style={{ textAlign: "center", padding: "12px 0 16px", color: "#aaa", fontSize: 13 }}>
