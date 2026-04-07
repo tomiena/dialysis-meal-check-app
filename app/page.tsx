@@ -1188,10 +1188,19 @@ export default function Home() {
 
               
   {!isInputLocked ? (
-    <div>
-
+  <div>
     <div style={{ marginBottom: "12px" }}>
-      <button onClick={() => alert("自由入力はこれから作ります")}>
+      <button
+        onClick={() => alert("自由入力はこれから作ります")}
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          background: "#fff",
+          cursor: "pointer"
+        }}
+      >
         自由入力で追加
       </button>
     </div>
@@ -1208,12 +1217,12 @@ export default function Home() {
         border: "none",
         borderRadius: 12,
         cursor: "pointer",
-        marginBottom: 16
+        marginBottom: 16,
+        boxShadow: "0 4px 14px rgba(46,125,50,0.28)",
       }}
     >
       ＋ 食事を記録する
     </button>
-
   </div>
     
             ) : (
