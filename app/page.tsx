@@ -1218,13 +1218,14 @@ export default function Home() {
         marginBottom: 16
       }}
     >
-      ＋ 食事を記録する
-    </button>
-    <div style={{ marginTop: "12px" }}>
+    <div style={{ marginBottom: "12px" }}>
   <button onClick={() => alert("自由入力はこれから作ります")}>
     自由入力で追加
   </button>
 </div>
+      ＋ 食事を記録する
+    </button>
+    
 
             ) : (
               <div style={{ textAlign: "center", padding: "12px 0 16px", color: "#aaa", fontSize: 13 }}>
