@@ -1195,7 +1195,7 @@ export default function Home() {
 </div>
 
 {/* ③ CTA */}
-{!isInputLocked ? (
+{true ? (
   <div>
     <div style={{ marginBottom: "12px" }}>
   <button
