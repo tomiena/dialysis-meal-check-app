@@ -1202,6 +1202,30 @@ export default function Home() {
   </div>
 
   <p
+  <p style={{ fontSize: 15, color: "#5c3d1e", lineHeight: 1.85, margin: 0, whiteSpace: "pre-line" }}>
+  {getDailyComment()}
+
+  {/* ↓ ここに強制表示 */}
+  <div style={{ marginTop: 12 }}>
+    <button
+      onClick={() => setShowFreeInput(true)}
+      style={{
+        width: "100%",
+        padding: "14px",
+        borderRadius: "12px",
+        border: "2px solid red",
+        background: "#fff",
+        fontSize: "16px",
+        fontWeight: "bold",
+        color: "red",
+        cursor: "pointer"
+      }}
+    >
+      強制ボタン（ここに出る）
+    </button>
+  </div>
+
+</p>
     style={{
       fontSize: 15,
       color: "#5c3d1e",
