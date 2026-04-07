@@ -1185,49 +1185,53 @@ export default function Home() {
             {/* ③ CTA */}
             {!isInputLocked ? (
               
+              {/* ③ CTA */}
+            {!isInputLocked ? (
+              <div>
+                <div style={{ marginBottom: "12px" }}>
+                  <button
+                    onClick={() => alert("自由入力はこれから作ります")}
+                    style={{
+                      width: "100%",
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: "1px solid #d1d5db",
+                      background: "#fff",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    自由入力で追加
+                  </button>
+                </div>
 
-              
-  {true ? (
-<div style={{ marginBottom: "12px" }}>
-  <button
-    onClick={() => alert("自由入力はこれから作ります")}
-    style={{
-      width: "100%",
-      padding: "16px",
-      fontSize: 16,
-      fontWeight: "bold",
-      background: "#2563eb",
-      color: "#fff",
-      border: "none",
-      borderRadius: 12,
-      cursor: "pointer",
-      marginBottom: 12
-    }}
-  >
-    自由入力で追加
-  </button>
-</div>
-<button
-  onClick={() => setShowRecorder(true)}
-  style={{
-    width: "100%",
-    padding: "18px",
-    fontSize: 18,
-    fontWeight: "bold",
-    background: "linear-gradient(135deg, #22c55e, #16a34a)",
-    color: "#fff",
-    border: "none",
-    borderRadius: 12,
-    cursor: "pointer",
-    marginBottom: 16
-  }}
->
-  ＋ 食事を記録する
-</button>
-    
-  </div>
+                <button
+                  onClick={() => setShowRecorder(true)}
+                  style={{
+                    width: "100%",
+                    padding: "18px",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    marginBottom: 16,
+                  }}
+                >
+                  ＋ 食事を記録する
+                </button>
+              </div>
             ) : (
-              <div style={{ textAlign: "center", padding: "12px 0 16px", color: "#aaa", fontSize: 13 }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "12px 0 16px",
+                  color: "#aaa",
+                  fontSize: 13,
+                }}
+              >
                 🔒 この日の記録は有料プランでご利用いただけます
               </div>
             )}
