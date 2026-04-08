@@ -4,16 +4,32 @@ import { useState } from "react";
 
 export default function PremiumButton() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
   const handleClick = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/checkout", { method: "POST" });
-      if (!res.ok) throw new Error("通信エラーが発生しました");
-      const data = await res.json();
-      if (!data.url) throw new Error("URLが取得できませんでした");
+
+      // レスポンス本文を先にテキストで取得（HTMLエラーにも対応）
+      const text = await res.text();
+      let data: { url?: string; error?: string } = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        // JSONでない場合（HTMLエラーページなど）
+        console.error("[PremiumButton] JSONパース失敗:", text.slice(0, 300));
+        throw new Error(`サーバーエラー（${res.status}）`);
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error ?? `サーバーエラー（${res.status}）`);
+      }
+      if (!data.url) {
+        throw new Error("決済URLが取得できませんでした");
+      }
+
       window.location.href = data.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
@@ -31,7 +47,9 @@ export default function PremiumButton() {
       >
         {loading ? "処理中..." : "プレミアム（月額680円）を始める"}
       </button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm text-center max-w-xs">{error}</p>
+      )}
     </div>
   );
 }
