@@ -18,7 +18,6 @@ export default function PremiumButton() {
       try {
         data = JSON.parse(text);
       } catch {
-        // JSONでない場合（HTMLエラーページなど）
         console.error("[PremiumButton] JSONパース失敗:", text.slice(0, 300));
         throw new Error(`サーバーエラー（${res.status}）`);
       }
@@ -45,7 +44,7 @@ export default function PremiumButton() {
         disabled={loading}
         className="rounded-xl bg-teal-600 px-6 py-3 text-white font-semibold shadow hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {loading ? "処理中..." : "プレミアム（月額680円）を始める"}
+        {loading ? "処理中..." : "プレミアムを始める（買い切り ¥500）"}
       </button>
       {error && (
         <p className="text-red-500 text-sm text-center max-w-xs">{error}</p>
