@@ -208,13 +208,15 @@ export default function LP() {
       <section className="px-6 pb-20 bg-white">
         <div className="max-w-md mx-auto space-y-8">
 
-          {/* タイトル */}
+          {/* タイトル・リード文 */}
           <div className="pt-10 text-center">
             <h2 className="text-xl font-bold text-gray-800">追加機能について</h2>
-            <p className="mt-3 text-gray-500 text-sm leading-relaxed">
+            <p className="mt-4 text-gray-500 text-sm leading-loose">
               このアプリは、基本機能を無料でお使いいただけます。
               <br />
-              必要な方のみ、追加機能をご利用ください。
+              まずは無料で続けていただき、
+              <br />
+              必要な方のみ追加機能をご利用ください。
             </p>
           </div>
 
@@ -223,10 +225,9 @@ export default function LP() {
             <p className="text-sm font-bold text-gray-700 mb-3">無料でできること</p>
             <ul className="space-y-2">
               {[
-                "食品を入力して塩分・カリウム・リンを即時判定",
-                "判定結果をわかりやすく色で表示",
-                "食事へのアドバイスを表示",
-                "登録不要・すぐ使える",
+                "食事の記録",
+                "栄養の確認",
+                "日々の振り返り",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
                   <span className="text-teal-500 mt-0.5">✓</span>
@@ -241,9 +242,9 @@ export default function LP() {
             <p className="text-sm font-bold text-teal-700 mb-3">追加機能でできること</p>
             <ul className="space-y-2">
               {[
-                "より詳細な栄養アドバイスの表示",
-                "食事履歴の保存と振り返り",
-                "栄養バランスのグラフ表示",
+                "より便利な記録サポート",
+                "振り返りのしやすさ向上",
+                "継続しやすくなる補助機能",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
                   <span className="text-teal-400 mt-0.5">＋</span>
@@ -253,35 +254,18 @@ export default function LP() {
             </ul>
           </div>
 
-          {/* 向いている方 */}
-          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-5 py-5">
-            <p className="text-sm font-bold text-gray-700 mb-3">こんな方に向いています</p>
-            <ul className="space-y-2">
-              {[
-                "毎日の食事をもっとしっかり管理したい方",
-                "栄養士や医師と記録を共有したい方",
-                "長期的に食事の傾向を把握したい方",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
-                  <span className="text-gray-400 mt-0.5">・</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* 料金 */}
-          <div className="rounded-2xl border border-gray-200 px-5 py-5 text-center">
-            <p className="text-xs text-gray-400 mb-1">追加機能の料金</p>
+          <div className="rounded-2xl border border-gray-200 px-5 py-5 text-center space-y-1">
+            <p className="text-xs text-gray-400">追加機能の料金</p>
             <p className="text-3xl font-bold text-gray-800">
               ¥500
-              <span className="text-base font-normal text-gray-400 ml-1">買い切り</span>
+              <span className="text-base font-normal text-gray-400 ml-2">買い切り</span>
             </p>
-            <p className="text-xs text-gray-400 mt-1">一度のお支払いでずっと使えます</p>
+            <p className="text-xs text-gray-400">毎月の課金はありません。</p>
           </div>
 
           {/* 締めの言葉 */}
-          <p className="text-sm text-gray-500 leading-relaxed text-center px-2">
+          <p className="text-sm text-gray-500 leading-loose text-center px-2">
             まずは無料版をそのままお使いいただいて大丈夫です。
             <br />
             必要になったときに、いつでもご利用いただけます。
