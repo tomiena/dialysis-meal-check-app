@@ -24,7 +24,10 @@ export type Food = {
 export const FOODS: Food[] = [
 
   // ── grain 主食・麺 ─────────────────────────────────────────
-  { id: "rice",             name: "白米",         category: "grain",        image: "/images/foods/rice.png",             water: 60, sodium:   1, potassium:  29, phosphorus:  34 },
+  { id: "rice",             name: "白米",         category: "grain",        image: "/images/foods/rice.png",             water: 60,
+sodium: 0,
+potassium: 44,
+phosphorus: 54, },
   { id: "brown_rice",       name: "玄米",         category: "grain",        image: "/images/foods/brown_rice.png",       water: 60, sodium:   1, potassium:  95, phosphorus: 130 },
   { id: "onigiri",          name: "おにぎり",     category: "grain",        image: "/images/foods/onigiri.png",          water: 56, sodium: 220, potassium:  29, phosphorus:  40 },
   { id: "bread",            name: "食パン",       category: "grain",        image: "/images/foods/bread.png",            water: 38, sodium: 500, potassium:  97, phosphorus:  85 },
@@ -34,7 +37,8 @@ export const FOODS: Food[] = [
   { id: "spaghetti",        name: "スパゲティ",   category: "grain",        image: "/images/foods/spaghetti.png",        water: 65, sodium:   1, potassium:  55, phosphorus:  90 },
 
   // ── soup 汁物 ──────────────────────────────────────────────
-  { id: "miso_soup",        name: "みそ汁",       category: "soup",         image: "/images/foods/miso_soup.png",        water: 93, sodium: 600, potassium:  80, phosphorus:  40 },
+  { id: "miso_soup",        name: "みそ汁",       category: "soup",         image: "/images/foods/miso_soup.png",        water: 93, sodium: 1200,
+potassium: 120, phosphorus:  40 },
   { id: "vegetable_soup",   name: "野菜スープ",   category: "soup",         image: "/images/foods/vegetable_soup.png",   water: 93, sodium: 400, potassium: 200, phosphorus:  30 },
 
   // ── drink 飲み物 ───────────────────────────────────────────
@@ -120,6 +124,26 @@ export const FOODS: Food[] = [
   { id: "sandwich",         name: "サンドイッチ",   category: "prepared_food", image: "/images/foods/sandwich.png",        water: 45, sodium: 500, potassium: 110, phosphorus:  90 },
   { id: "bento",            name: "お弁当",         category: "prepared_food", image: "/images/foods/bento.png",           water: 55, sodium: 600, potassium: 150, phosphorus: 100 },
   { id: "pizza",            name: "ピザ",           category: "prepared_food", image: "/images/foods/pizza.png",           water: 45, sodium: 550, potassium: 120, phosphorus: 130 },
+  { id: "gyoza",            name: "餃子",           category: "prepared_food", image: "/images/foods/gyoza.png",           water: 65, sodium: 500, potassium: 200, phosphorus: 100 },
+  { id: "grilled_fish",     name: "焼き魚",         category: "prepared_food", image: "/images/foods/grilled_fish.png",    water: 65, sodium: 200, potassium: 300, phosphorus: 220 },
+  { id: "fried_shrimp",     name: "エビフライ",     category: "prepared_food", image: "/images/foods/fried_shrimp.png",    water: 55, sodium: 500, potassium: 200, phosphorus: 200 },
+  { id: "croquette",        name: "コロッケ",       category: "prepared_food", image: "/images/foods/croquette.png",       water: 45, sodium: 400, potassium: 280, phosphorus:  70 },
+  { id: "tempura",          name: "天ぷら",         category: "prepared_food", image: "/images/foods/tempura.png",         water: 50, sodium: 300, potassium: 200, phosphorus:  90 },
+  { id: "shumai",           name: "しゅうまい",     category: "prepared_food", image: "/images/foods/shumai.png",          water: 60, sodium: 450, potassium: 220, phosphorus: 100 },
+  { id: "spring_roll",      name: "春巻き",         category: "prepared_food", image: "/images/foods/spring_roll.png",     water: 45, sodium: 400, potassium: 180, phosphorus:  80 },
+  { id: "tamagoyaki",       name: "卵焼き",         category: "prepared_food", image: "/images/foods/tamagoyaki.png",      water: 72, sodium: 350, potassium: 120, phosphorus: 150 },
+  { id: "yakisoba",         name: "焼きそば",       category: "prepared_food", image: "/images/foods/yakisoba.png",        water: 60, sodium: 600, potassium: 150, phosphorus:  70 },
+  { id: "potato_salad",     name: "ポテトサラダ",   category: "prepared_food", image: "/images/foods/potato_salad.png",    water: 70, sodium: 450, potassium: 250, phosphorus:  50 },
+  { id: "macaroni_salad",   name: "マカロニサラダ", category: "prepared_food", image: "/images/foods/macaroni_salad.png",  water: 65, sodium: 400, potassium: 100, phosphorus:  60 },
+  { id: "salad",            name: "サラダ",         category: "prepared_food", image: "/images/foods/salad.png",           water: 93, sodium:  10, potassium: 250, phosphorus:  30 },
+  { id: "tonjiru",          name: "とん汁",         category: "soup",          image: "/images/foods/tonjiru.png",         water: 90, sodium: 800, potassium: 200, phosphorus: 100 },
+  { id: "corn_soup",        name: "コーンスープ",   category: "soup",          image: "/images/foods/corn_soup.png",       water: 85, sodium: 500, potassium: 150, phosphorus:  60 },
+  { id: "barley_tea",       name: "麦茶",           category: "drink",         image: "/images/foods/barley_tea.png",      water: 100, sodium:   0, potassium:  13, phosphorus:   2 },
+  { id: "oolong_tea",       name: "ウーロン茶",     category: "drink",         image: "/images/foods/oolong_tea.png",      water: 100, sodium:   1, potassium:  13, phosphorus:   2 },
+  { id: "sake",             name: "日本酒",         category: "drink",         image: "/images/foods/sake.png",            water:  82, sodium:   2, potassium:   5, phosphorus:  10 },
+  { id: "cafe_au_lait",     name: "カフェオレ",     category: "drink",         image: "/images/foods/cafe_au_lait.png",    water:  88, sodium:  35, potassium: 120, phosphorus:  70 },
+  { id: "tomato_juice",     name: "トマトジュース", category: "drink",         image: "/images/foods/tomato_juice.png",    water:  94, sodium: 240, potassium: 260, phosphorus:  20 },
+  { id: "vegetable_juice",  name: "野菜ジュース",   category: "drink",         image: "/images/foods/vegetable_juice.png", water:  93, sodium: 200, potassium: 250, phosphorus:  20 },
 ];
 
 export function getFoodRisk(food: Food) {
