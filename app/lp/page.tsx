@@ -62,7 +62,7 @@ export default function LP() {
         </div>
       </section>
 
-      {/* ③ 想い（魂）セクション */}
+      {/* ③ 想い */}
       <section className="px-6 py-14 bg-teal-600 text-white">
         <div className="max-w-md mx-auto">
           <p className="text-sm font-semibold tracking-widest opacity-80 mb-4 text-center">
@@ -97,14 +97,13 @@ export default function LP() {
         </div>
       </section>
 
-      {/* ④ スクリーンショット 3枚 */}
+      {/* ④ スクリーンショット */}
       <section className="py-14">
         <h2 className="text-xl font-bold mb-8 text-center px-6">
           食べた結果がすぐ分かる
         </h2>
 
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-4 scrollbar-hide">
-          {/* 1枚目：価値 */}
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
               <Image
@@ -115,15 +114,10 @@ export default function LP() {
                 alt="ナトリウム・カリウム・リンの判定結果画面"
               />
             </div>
-            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">
-              食べた後、すぐ判定
-            </p>
-            <p className="text-xs text-gray-400 text-center mt-1">
-              色でパッと分かる
-            </p>
+            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">食べた後、すぐ判定</p>
+            <p className="text-xs text-gray-400 text-center mt-1">色でパッと分かる</p>
           </div>
 
-          {/* 2枚目：使い方 */}
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
               <Image
@@ -134,15 +128,10 @@ export default function LP() {
                 alt="食材を選んで判定する操作画面"
               />
             </div>
-            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">
-              食材を選ぶだけ
-            </p>
-            <p className="text-xs text-gray-400 text-center mt-1">
-              入力は30秒以内
-            </p>
+            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">食材を選ぶだけ</p>
+            <p className="text-xs text-gray-400 text-center mt-1">入力は30秒以内</p>
           </div>
 
-          {/* 3枚目：信頼性 */}
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
               <Image
@@ -153,18 +142,13 @@ export default function LP() {
                 alt="塩分・カリウム・リンの詳細判定とアドバイス表示"
               />
             </div>
-            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">
-              アドバイスも表示
-            </p>
-            <p className="text-xs text-gray-400 text-center mt-1">
-              次の食事に活かせる
-            </p>
+            <p className="mt-3 text-sm font-semibold text-gray-700 text-center">アドバイスも表示</p>
+            <p className="text-xs text-gray-400 text-center mt-1">次の食事に活かせる</p>
           </div>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-2">← スワイプで確認 →</p>
 
-        {/* CTA（スクショ後） */}
         <div className="text-center mt-10 px-6">
           <a
             href="https://food-app-sr7i.vercel.app/"
@@ -220,12 +204,95 @@ export default function LP() {
         </a>
       </section>
 
-      {/* ⑦ 料金 */}
-      <section className="px-6 pb-16 text-center">
-        <PremiumButton />
-        <p className="mt-3 text-gray-400 text-xs">
-          ※無料で使えます（プレミアム機能は準備中）
-        </p>
+      {/* ⑦ 追加機能について */}
+      <section className="px-6 pb-20 bg-white">
+        <div className="max-w-md mx-auto space-y-8">
+
+          {/* タイトル */}
+          <div className="pt-10 text-center">
+            <h2 className="text-xl font-bold text-gray-800">追加機能について</h2>
+            <p className="mt-3 text-gray-500 text-sm leading-relaxed">
+              このアプリは、基本機能を無料でお使いいただけます。
+              <br />
+              必要な方のみ、追加機能をご利用ください。
+            </p>
+          </div>
+
+          {/* 無料でできること */}
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-5 py-5">
+            <p className="text-sm font-bold text-gray-700 mb-3">無料でできること</p>
+            <ul className="space-y-2">
+              {[
+                "食品を入力して塩分・カリウム・リンを即時判定",
+                "判定結果をわかりやすく色で表示",
+                "食事へのアドバイスを表示",
+                "登録不要・すぐ使える",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
+                  <span className="text-teal-500 mt-0.5">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 追加機能でできること */}
+          <div className="rounded-2xl border border-teal-100 bg-teal-50 px-5 py-5">
+            <p className="text-sm font-bold text-teal-700 mb-3">追加機能でできること</p>
+            <ul className="space-y-2">
+              {[
+                "より詳細な栄養アドバイスの表示",
+                "食事履歴の保存と振り返り",
+                "栄養バランスのグラフ表示",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
+                  <span className="text-teal-400 mt-0.5">＋</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 向いている方 */}
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-5 py-5">
+            <p className="text-sm font-bold text-gray-700 mb-3">こんな方に向いています</p>
+            <ul className="space-y-2">
+              {[
+                "毎日の食事をもっとしっかり管理したい方",
+                "栄養士や医師と記録を共有したい方",
+                "長期的に食事の傾向を把握したい方",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
+                  <span className="text-gray-400 mt-0.5">・</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 料金 */}
+          <div className="rounded-2xl border border-gray-200 px-5 py-5 text-center">
+            <p className="text-xs text-gray-400 mb-1">追加機能の料金</p>
+            <p className="text-3xl font-bold text-gray-800">
+              ¥500
+              <span className="text-base font-normal text-gray-400 ml-1">買い切り</span>
+            </p>
+            <p className="text-xs text-gray-400 mt-1">一度のお支払いでずっと使えます</p>
+          </div>
+
+          {/* 締めの言葉 */}
+          <p className="text-sm text-gray-500 leading-relaxed text-center px-2">
+            まずは無料版をそのままお使いいただいて大丈夫です。
+            <br />
+            必要になったときに、いつでもご利用いただけます。
+          </p>
+
+          {/* ボタン */}
+          <div className="text-center pb-4">
+            <PremiumButton label="必要な方はこちら" />
+          </div>
+
+        </div>
       </section>
 
     </main>

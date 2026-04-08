@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-export default function PremiumButton() {
+type Props = {
+  label?: string;
+};
+
+export default function PremiumButton({ label = "プレミアムを始める（買い切り ¥500）" }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
@@ -12,7 +16,6 @@ export default function PremiumButton() {
     try {
       const res = await fetch("/api/checkout", { method: "POST" });
 
-      // レスポンス本文を先にテキストで取得（HTMLエラーにも対応）
       const text = await res.text();
       let data: { url?: string; error?: string } = {};
       try {
@@ -44,7 +47,7 @@ export default function PremiumButton() {
         disabled={loading}
         className="rounded-xl bg-teal-600 px-6 py-3 text-white font-semibold shadow hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {loading ? "処理中..." : "プレミアムを始める（買い切り ¥500）"}
+        {loading ? "処理中..." : label}
       </button>
       {error && (
         <p className="text-red-500 text-sm text-center max-w-xs">{error}</p>
