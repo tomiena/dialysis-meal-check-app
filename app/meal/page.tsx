@@ -120,10 +120,10 @@ export default function MealPage() {
         <div className="mx-auto max-w-md relative flex items-center justify-center">
           <Link
             href="/"
-            className="absolute left-0 flex items-center gap-1 text-gray-500 hover:text-gray-700 py-1"
+            className="absolute left-0 inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
           >
-            <span className="text-xl leading-none">←</span>
-            <span className="text-sm font-medium">戻る</span>
+            <span className="text-base leading-none">←</span>
+            <span>戻る</span>
           </Link>
           <h1 className="text-lg font-bold text-gray-800">食事を記録</h1>
         </div>

@@ -178,6 +178,22 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── 記録ボタン ───────────────────────────────────── */}
+        <div className="flex gap-3">
+          <Link
+            href="/meal"
+            className="flex-1 rounded-2xl bg-teal-600 py-4 text-center text-white text-base font-bold shadow-sm hover:bg-teal-700 active:scale-[0.98] transition-all"
+          >
+            食事を記録する
+          </Link>
+          <Link
+            href="/meal"
+            className="flex-none rounded-2xl border-2 border-teal-500 px-5 py-4 text-center text-teal-700 text-sm font-semibold hover:bg-teal-50 active:scale-[0.98] transition-all whitespace-nowrap"
+          >
+            自由入力する
+          </Link>
+        </div>
+
         {/* ── バイタル ──────────────────────────────────────── */}
         <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
           <div className="flex items-center justify-between">
