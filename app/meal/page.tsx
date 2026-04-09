@@ -102,7 +102,7 @@ export default function MealPage() {
               onClick={handleSubmit}
               className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-98 transition-all"
             >
-              {selected.size}品を選択 → 結果を見る
+              {selected.size}品を選択 → 保存する
             </button>
           ) : (
             <p className="text-center text-gray-400 text-sm py-3">

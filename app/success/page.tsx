@@ -1,6 +1,14 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
+import { setIsPremium } from "@/lib/premium";
 
 export default function SuccessPage() {
+  useEffect(() => {
+    setIsPremium(true);
+  }, []);
+
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
       <div className="max-w-sm space-y-4">

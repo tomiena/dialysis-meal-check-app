@@ -1,19 +1,25 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FOODS } from "@/lib/foods";
 import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
 import { generateAdvice, generateProfessionalAdvice } from "@/lib/advice";
-import { saveMealHistory, toDateStr } from "@/lib/storage";
+import { getMealHistory, saveMealHistory, toDateStr } from "@/lib/storage";
+import { getIsPremium } from "@/lib/premium";
 import NutrientCard from "@/app/components/NutrientCard";
 import AdviceCard from "@/app/components/AdviceCard";
+import FreeLimitNotice from "@/app/components/FreeLimitNotice";
+
+const FREE_MEAL_LIMIT = 3;
 
 // ─── 結果画面本体 ────────────────────────────────────────────
 function ResultContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const [saved, setSaved] = useState(false);
+  const savedRef     = useRef(false);
+
+  const [overLimit, setOverLimit] = useState(false);
 
   // URL params: foods=rice:100,egg:100,natto:100
   const foodsParam = searchParams.get("foods") ?? "";
@@ -30,8 +36,8 @@ function ResultContent() {
 
   const totals = items.length > 0 ? calculateTotals(items) : null;
   const result = items.length > 0 ? judgeMeal(items)      : null;
-  const advice       = result ? generateAdvice(result)             : null;
-  const proAdvice    = result ? generateProfessionalAdvice(result) : null;
+  const advice    = result ? generateAdvice(result)             : null;
+  const proAdvice = result ? generateProfessionalAdvice(result) : null;
 
   // 全体判定ラベル
   const overallLabel = result?.overall === "ng"      ? "要注意"
@@ -41,18 +47,31 @@ function ResultContent() {
                      : result?.overall === "caution" ? "bg-yellow-50 border-yellow-200 text-yellow-700"
                      : "bg-teal-50 border-teal-200 text-teal-700";
 
-  const handleSave = () => {
-    if (!result || !totals || saved) return;
+  // 自動保存 + 制限チェック
+  useEffect(() => {
+    if (savedRef.current || !result || !totals || items.length === 0) return;
+    savedRef.current = true;
+
+    const today     = toDateStr(new Date());
+    const history   = getMealHistory();
+    const todayCount = history.filter((m) => m.date === today).length;
+    const isPremium  = getIsPremium();
+
+    // 保存
     saveMealHistory({
-      date:    toDateStr(new Date()),
+      date:    today,
       items:   items.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
       total:   totals,
       overall: result.overall,
       advice:  proAdvice ?? undefined,
     });
-    setSaved(true);
-    setTimeout(() => router.push("/"), 800);
-  };
+
+    // 無料ユーザーで3食超えの場合は制限画面へ
+    if (!isPremium && todayCount >= FREE_MEAL_LIMIT) {
+      setOverLimit(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -67,6 +86,10 @@ function ResultContent() {
         </button>
       </div>
     );
+  }
+
+  if (overLimit) {
+    return <FreeLimitNotice />;
   }
 
   return (
@@ -164,25 +187,13 @@ function ResultContent() {
 
       {/* ── 下部固定ボタン ────────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4 shadow-lg">
-        <div className="mx-auto max-w-md flex gap-3">
+        <div className="mx-auto max-w-md">
           <button
             type="button"
-            onClick={() => router.push("/meal")}
-            className="rounded-2xl border border-gray-300 px-4 py-3 text-gray-600 font-semibold hover:bg-gray-50 transition-colors"
+            onClick={() => router.push("/")}
+            className="w-full rounded-2xl bg-teal-600 py-4 text-white text-base font-bold shadow-md hover:bg-teal-700 active:scale-98 transition-all"
           >
-            戻る
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saved}
-            className={`flex-1 rounded-2xl py-4 text-white text-base font-bold shadow-md transition-all ${
-              saved
-                ? "bg-gray-400"
-                : "bg-teal-600 hover:bg-teal-700 active:scale-98"
-            }`}
-          >
-            {saved ? "✓ 保存しました" : "保存してホームへ"}
+            ホームへ戻る
           </button>
         </div>
       </div>

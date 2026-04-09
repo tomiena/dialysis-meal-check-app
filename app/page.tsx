@@ -10,7 +10,9 @@ import {
   type Meal,
   type DailyVitals,
 } from "@/lib/storage";
+import { getIsPremium } from "@/lib/premium";
 import PremiumButton from "@/app/components/PremiumButton";
+import PremiumSupportRow from "@/app/components/PremiumSupportRow";
 
 // ─── ステータス色 ────────────────────────────────────────────
 const DOT: Record<string, string> = {
@@ -48,23 +50,35 @@ function todayLabel() {
   });
 }
 
+// ─── 今日のひとこと ──────────────────────────────────────────
+function getDailyTip(meals: Meal[]): string {
+  if (meals.length === 0) return "今日もこまめな記録で体の変化に気づきましょう。";
+  const hasNg      = meals.some((m) => m.overall === "ng");
+  const hasCaution = meals.some((m) => m.overall === "caution");
+  if (hasNg)      return "今日は少し塩分やカリウムが多めでした。次の食事で調整しましょう。";
+  if (hasCaution) return "今日はやや多めの栄養素があります。水分補給も意識してみてください。";
+  return "今日の食事はバランスが取れています。この調子で続けましょう！";
+}
+
 export default function HomePage() {
   const today = toDateStr(new Date());
 
-  const [history, setHistory]     = useState<Meal[]>([]);
-  const [vitals, setVitals]       = useState<DailyVitals>({ date: today });
+  const [history, setHistory]       = useState<Meal[]>([]);
+  const [vitals, setVitals]         = useState<DailyVitals>({ date: today });
   const [editVitals, setEditVitals] = useState<DailyVitals>({ date: today });
   const [showVitals, setShowVitals] = useState(false);
+  const [isPremium, setIsPremium]   = useState(false);
 
   useEffect(() => {
     setHistory(getMealHistory());
     const v = getDailyVitals(today);
     setVitals(v);
     setEditVitals(v);
+    setIsPremium(getIsPremium());
   }, [today]);
 
-  const todayMeals  = history.filter((m) => m.date === today);
-  const last7       = getLast7Days();
+  const todayMeals = history.filter((m) => m.date === today);
+  const last7      = getLast7Days();
 
   // 今日の合計栄養
   const todayTotal = todayMeals.reduce(
@@ -122,10 +136,10 @@ export default function HomePage() {
           {hasTodayData ? (
             <div className="space-y-2">
               {[
-                { label: "水分",   value: todayTotal.water,      unit: "ml",  ok: 1500, ng: 2000 },
-                { label: "塩分",   value: todayTotal.sodium,     unit: "mg",  ok: 700,  ng: 1050 },
-                { label: "カリウム", value: todayTotal.potassium, unit: "mg",  ok: 550,  ng: 825  },
-                { label: "リン",   value: todayTotal.phosphorus, unit: "mg",  ok: 220,  ng: 330  },
+                { label: "水分",     value: todayTotal.water,      unit: "ml", ok: 1500, ng: 2000 },
+                { label: "塩分",     value: todayTotal.sodium,     unit: "mg", ok: 700,  ng: 1050 },
+                { label: "カリウム", value: todayTotal.potassium,  unit: "mg", ok: 550,  ng: 825  },
+                { label: "リン",     value: todayTotal.phosphorus, unit: "mg", ok: 220,  ng: 330  },
               ].map(({ label, value, unit, ok, ng }) => {
                 const st = getStatus(value, ok, ng);
                 return (
@@ -155,6 +169,17 @@ export default function HomePage() {
           )}
         </section>
 
+        {/* ── 今日のひとこと ───────────────────────────────────── */}
+        <section className="bg-white rounded-2xl border shadow-sm p-4 flex gap-3 items-start">
+          <span className="text-2xl flex-shrink-0">💬</span>
+          <div>
+            <p className="text-xs font-bold text-gray-500 mb-1">今日のひとこと</p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {getDailyTip(todayMeals)}
+            </p>
+          </div>
+        </section>
+
         {/* ── ＋食事を記録するボタン ────────────────────────────── */}
         <Link
           href="/meal"
@@ -162,6 +187,9 @@ export default function HomePage() {
         >
           ＋ 食事を記録する
         </Link>
+
+        {/* ── プレミアムサポート行 ──────────────────────────────── */}
+        {!isPremium && <PremiumSupportRow />}
 
         {/* ── バイタル入力 ───────────────────────────────────────── */}
         <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
@@ -263,30 +291,32 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* ── 直近7日間カレンダー ───────────────────────────────── */}
-        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
-          <p className="font-bold text-gray-700">直近7日間</p>
-          <div className="grid grid-cols-7 gap-1 text-center">
-            {last7.map((dateStr) => {
-              const st    = dayStatus(dateStr);
-              const day   = new Date(dateStr).getDate();
-              const isToday = dateStr === today;
-              return (
-                <div key={dateStr} className="flex flex-col items-center gap-1">
-                  <span className={`text-xs ${isToday ? "font-bold text-teal-600" : "text-gray-400"}`}>
-                    {day}
-                  </span>
-                  <div className={`w-6 h-6 rounded-full ${DOT[st]} ${isToday ? "ring-2 ring-teal-400 ring-offset-1" : ""}`} />
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex gap-3 text-xs text-gray-400 justify-center pt-1">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-400 inline-block" />良好</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />注意</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />多すぎ</span>
-          </div>
-        </section>
+        {/* ── 直近7日間カレンダー（プレミアムのみ）──────────────── */}
+        {isPremium && (
+          <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+            <p className="font-bold text-gray-700">直近7日間</p>
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {last7.map((dateStr) => {
+                const st      = dayStatus(dateStr);
+                const day     = new Date(dateStr).getDate();
+                const isToday = dateStr === today;
+                return (
+                  <div key={dateStr} className="flex flex-col items-center gap-1">
+                    <span className={`text-xs ${isToday ? "font-bold text-teal-600" : "text-gray-400"}`}>
+                      {day}
+                    </span>
+                    <div className={`w-6 h-6 rounded-full ${DOT[st]} ${isToday ? "ring-2 ring-teal-400 ring-offset-1" : ""}`} />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-3 text-xs text-gray-400 justify-center pt-1">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-400 inline-block" />良好</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />注意</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />多すぎ</span>
+            </div>
+          </section>
+        )}
 
         {/* ── 今日の食事一覧 ────────────────────────────────────── */}
         {todayMeals.length > 0 && (
@@ -310,10 +340,12 @@ export default function HomePage() {
         )}
 
         {/* ── プレミアムセクション ──────────────────────────────── */}
-        <section className="rounded-2xl bg-gradient-to-r from-teal-50 to-white border border-teal-100 p-4 text-center space-y-2">
-          <p className="text-xs text-gray-400">より詳しい管理でさらに安心</p>
-          <PremiumButton />
-        </section>
+        {!isPremium && (
+          <section className="rounded-2xl bg-gradient-to-r from-teal-50 to-white border border-teal-100 p-4 text-center space-y-2">
+            <p className="text-xs text-gray-400">より詳しい管理でさらに安心</p>
+            <PremiumButton />
+          </section>
+        )}
 
       </div>
     </main>

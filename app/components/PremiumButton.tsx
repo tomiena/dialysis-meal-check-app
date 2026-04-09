@@ -4,9 +4,10 @@ import { useState } from "react";
 
 type Props = {
   label?: string;
+  small?: boolean;
 };
 
-export default function PremiumButton({ label = "プレミアムを始める（買い切り ¥500）" }: Props) {
+export default function PremiumButton({ label = "プレミアムを始める（買い切り ¥500）", small = false }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
@@ -45,7 +46,7 @@ export default function PremiumButton({ label = "プレミアムを始める（�
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="rounded-xl bg-teal-600 px-6 py-3 text-white font-semibold shadow hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className={`rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${small ? "px-3 py-1.5 text-xs" : "px-6 py-3"}`}
       >
         {loading ? "処理中..." : label}
       </button>
