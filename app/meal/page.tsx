@@ -47,20 +47,21 @@ export default function MealPage() {
     <main className="min-h-screen bg-gray-50 pb-32">
 
       {/* ── ヘッダー ──────────────────────────────────────────── */}
-      <header className="bg-white border-b px-5 py-4 sticky top-0 z-10 shadow-sm">
-        <div className="mx-auto max-w-md flex items-center gap-3">
-          <Link href="/" className="text-2xl leading-none text-gray-500 hover:text-gray-700">
-            ←
+      <header className="bg-white border-b px-4 py-4 sticky top-0 z-10 shadow-sm">
+        <div className="mx-auto max-w-md relative flex items-center justify-center">
+          <Link
+            href="/"
+            className="absolute left-0 flex items-center gap-1 text-gray-500 hover:text-gray-700 py-1 px-1"
+          >
+            <span className="text-xl leading-none">←</span>
+            <span className="text-sm font-medium">戻る</span>
           </Link>
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">食事を選ぶ</h1>
-            <p className="text-xs text-gray-400">食べたものをタップしてください</p>
-          </div>
+          <h1 className="text-lg font-bold text-gray-800">食事を記録</h1>
         </div>
       </header>
 
       {/* ── カテゴリタブ ──────────────────────────────────────── */}
-      <div className="sticky top-[73px] z-10 bg-white border-b">
+      <div className="sticky top-[57px] z-10 bg-white border-b">
         <div className="mx-auto max-w-md overflow-x-auto flex gap-2 px-4 py-2 scrollbar-hide">
           {CATEGORIES.map(({ id, label }) => (
             <button
@@ -100,7 +101,7 @@ export default function MealPage() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-98 transition-all"
+              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all"
             >
               {selected.size}品を選択 → 保存する
             </button>
