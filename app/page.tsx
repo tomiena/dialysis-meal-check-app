@@ -37,12 +37,25 @@ function todayLabel() {
   });
 }
 
-function getDailyTip(meals: Meal[]): string {
+function getDailyTip(
+  meals: Meal[],
+  total: { sodium: number; potassium: number; phosphorus: number },
+): string {
   if (meals.length === 0) return "今日もこまめな記録で体の変化に気づきましょう。";
-  const hasNg      = meals.some((m) => m.overall === "ng");
-  const hasCaution = meals.some((m) => m.overall === "caution");
-  if (hasNg)      return "塩分やカリウムが多めでした。次の食事は少し控えめにしてみましょう。";
-  if (hasCaution) return "やや多めの栄養素があります。水分補給も意識してみてください。";
+
+  const sNg = total.sodium     > 1050;
+  const kNg = total.potassium  > 825;
+  const pNg = total.phosphorus > 330;
+  const sCa = !sNg && total.sodium     > 700;
+  const kCa = !kNg && total.potassium  > 550;
+  const pCa = !pNg && total.phosphorus > 220;
+
+  if (sNg) return `今日の塩分が${total.sodium}mgを超えています。汁物を残す・醤油を減らすなど、次の食事で調整しましょう。`;
+  if (kNg) return `今日のカリウムが${total.potassium}mgを超えています。野菜は茹でこぼしを心がけてください。`;
+  if (pNg) return `今日のリンが${total.phosphorus}mgを超えています。乳製品や加工食品を控えると改善できます。`;
+  if (sCa) return `塩分がやや多め（${total.sodium}mg）です。明日は汁物を半量にするだけで大きく変わります。`;
+  if (kCa) return `カリウムがやや高め（${total.potassium}mg）です。茹で野菜を意識してみてください。`;
+  if (pCa) return `リンがやや多め（${total.phosphorus}mg）です。加工食品を少し控えてみましょう。`;
   return "今日の食事はバランスが取れています。この調子で続けましょう！";
 }
 
@@ -160,7 +173,7 @@ export default function HomePage() {
           <div>
             <p className="text-xs font-bold text-gray-500 mb-1">今日のひとこと</p>
             <p className="text-sm text-gray-700 leading-relaxed">
-              {getDailyTip(todayMeals)}
+              {getDailyTip(todayMeals, todayTotal)}
             </p>
           </div>
         </section>

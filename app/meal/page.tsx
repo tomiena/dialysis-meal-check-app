@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FOODS, type FoodCategory } from "@/lib/foods";
 import { getMealHistory, toDateStr } from "@/lib/storage";
+import { getIsPremium } from "@/lib/premium";
 import FoodCard from "@/app/components/FoodCard";
+import FreeLimitNotice from "@/app/components/FreeLimitNotice";
+
+const FREE_MEAL_LIMIT = 3;
 
 // ─── カテゴリ ──────────────────────────────────────────────
 type CategoryId = FoodCategory | "all" | "meat_fish";
@@ -47,6 +51,7 @@ export default function MealPage() {
   // ── 食材選択 ───────────────────────────────────────────
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showFreeLimit, setShowFreeLimit] = useState(false);
 
   // 過去記録（カレンダードット用）
   const history = getMealHistory();
@@ -95,9 +100,17 @@ export default function MealPage() {
 
   const handleSave = () => {
     if (selected.size === 0) return;
+    const isPremium  = getIsPremium();
+    const dayCount   = history.filter((m) => m.date === selectedDate).length;
+    if (!isPremium && dayCount >= FREE_MEAL_LIMIT) {
+      setShowFreeLimit(true);
+      return;
+    }
     const params = Array.from(selected).map((id) => `${id}:100`).join(",");
     router.push(`/result?foods=${encodeURIComponent(params)}&date=${encodeURIComponent(selectedDate)}`);
   };
+
+  if (showFreeLimit) return <FreeLimitNotice />;
 
   return (
     <main className="min-h-screen bg-gray-50 pb-32">

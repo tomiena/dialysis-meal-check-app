@@ -5,11 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FOODS } from "@/lib/foods";
 import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
 import { generateAdvice, generateProfessionalAdvice } from "@/lib/advice";
-import { getMealHistory, saveMealHistory, toDateStr } from "@/lib/storage";
-import { getIsPremium } from "@/lib/premium";
-import FreeLimitNotice from "@/app/components/FreeLimitNotice";
-
-const FREE_MEAL_LIMIT = 3;
+import { saveMealHistory, toDateStr } from "@/lib/storage";
 
 // ─── 判定ラベル・スタイル ────────────────────────────────
 type Status = "ok" | "caution" | "ng";
@@ -85,13 +81,17 @@ function NutrientRow({
   );
 }
 
+// タイムゾーンズレを防ぐローカルパース
+function localDateLabel(dateStr: string) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("ja-JP", { month: "long", day: "numeric" });
+}
+
 // ─── 結果画面本体 ────────────────────────────────────────
 function ResultContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const savedRef     = useRef(false);
-
-  const [overLimit, setOverLimit] = useState(false);
+  const savedRef = useRef(false);
 
   const foodsParam = searchParams.get("foods") ?? "";
   const dateParam  = searchParams.get("date")  ?? toDateStr(new Date());
@@ -120,15 +120,10 @@ function ResultContent() {
       ? "bg-yellow-50 border-yellow-300 text-yellow-700"
       : "bg-teal-50 border-teal-300 text-teal-700";
 
-  // 自動保存 + 無料制限チェック
+  // 自動保存
   useEffect(() => {
     if (savedRef.current || !result || !totals || items.length === 0) return;
     savedRef.current = true;
-
-    const history    = getMealHistory();
-    const todayCount = history.filter((m) => m.date === dateParam).length;
-    const isPremium  = getIsPremium();
-
     saveMealHistory({
       date:    dateParam,
       items:   items.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
@@ -136,10 +131,6 @@ function ResultContent() {
       overall: result.overall,
       advice:  proAdvice ?? undefined,
     });
-
-    if (!isPremium && todayCount >= FREE_MEAL_LIMIT) {
-      setOverLimit(true);
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -158,8 +149,6 @@ function ResultContent() {
     );
   }
 
-  if (overLimit) return <FreeLimitNotice />;
-
   return (
     <main className="min-h-screen bg-gray-50 pb-32">
 
@@ -176,7 +165,7 @@ function ResultContent() {
           </button>
           <div>
             <h1 className="text-xl font-bold text-gray-800">栄養評価</h1>
-            <p className="text-xs text-gray-400">{new Date(dateParam).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} の記録</p>
+            <p className="text-xs text-gray-400">{localDateLabel(dateParam)} の記録</p>
           </div>
         </div>
       </header>
@@ -216,7 +205,7 @@ function ResultContent() {
               value={totals.water}
               unit="ml"
               max={2000}
-              status={totals.water <= 1500 ? "ok" : totals.water <= 2000 ? "caution" : "ng"}
+              status={result.water.status as Status}
               thresholds={[1500, 2000]}
             />
             <NutrientRow

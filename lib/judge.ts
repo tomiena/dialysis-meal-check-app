@@ -12,6 +12,7 @@ export type NutrientResult = {
 
 export type JudgeResult = {
   overall: "ok" | "caution" | "ng";
+  water: NutrientResult;
   sodium: NutrientResult;
   potassium: NutrientResult;
   phosphorus: NutrientResult;
@@ -42,27 +43,31 @@ export function calculateTotals(items: MealItem[], drinkWater = 0) {
 }
 
 export function judgeMeal(items: MealItem[]): JudgeResult {
-  let sodium = 0, potassium = 0, phosphorus = 0;
+  let water = 0, sodium = 0, potassium = 0, phosphorus = 0;
   for (const { food, amount } of items) {
+    water      += food.water      * amount / 100;
     sodium     += food.sodium     * amount / 100;
     potassium  += food.potassium  * amount / 100;
     phosphorus += food.phosphorus * amount / 100;
   }
+  water      = Math.round(water);
   sodium     = Math.round(sodium);
   potassium  = Math.round(potassium);
   phosphorus = Math.round(phosphorus);
 
-  const sodiumStatus     = getStatus(sodium,     700,  1050);
-  const potassiumStatus  = getStatus(potassium,  550,   825);
-  const phosphorusStatus = getStatus(phosphorus, 220,   330);
+  const waterStatus      = getStatus(water,      1500, 2000);
+  const sodiumStatus     = getStatus(sodium,       700, 1050);
+  const potassiumStatus  = getStatus(potassium,    550,  825);
+  const phosphorusStatus = getStatus(phosphorus,   220,  330);
 
-  const statuses = [sodiumStatus, potassiumStatus, phosphorusStatus];
+  const statuses = [waterStatus, sodiumStatus, potassiumStatus, phosphorusStatus];
   const overall = statuses.includes("ng") ? "ng"
     : statuses.includes("caution") ? "caution"
     : "ok";
 
   return {
     overall,
+    water:      { value: water,      status: waterStatus },
     sodium:     { value: sodium,     status: sodiumStatus },
     potassium:  { value: potassium,  status: potassiumStatus },
     phosphorus: { value: phosphorus, status: phosphorusStatus },
