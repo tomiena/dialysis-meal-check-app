@@ -1,338 +1,315 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
-import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
-import { generateAdvice } from "@/lib/advice";
-import { FOODS } from "@/lib/foods";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import {
+  getMealHistory,
+  getDailyVitals,
+  saveDailyVitals,
+  toDateStr,
+  type Meal,
+  type DailyVitals,
+} from "@/lib/storage";
 import PremiumButton from "@/app/components/PremiumButton";
 
-// ─── 名前ゆれ対応 ────────────────────────────────────────────
-const aliasMap: Record<string, string> = {
-  "ご飯":   "白米",
-  "ごはん": "白米",
-  "味噌汁": "みそ汁",
-  "みそしる": "みそ汁",
-  "唐揚げ": "から揚げ",
-  "からあげ": "から揚げ",
-  "お握り": "おにぎり",
+// ─── ステータス色 ────────────────────────────────────────────
+const DOT: Record<string, string> = {
+  ok:      "bg-teal-400",
+  caution: "bg-yellow-400",
+  ng:      "bg-red-400",
+  none:    "bg-gray-200",
 };
 
-function findFood(name: string) {
-  const normalized = aliasMap[name] ?? name;
-  return FOODS.find((f) => f.name === normalized);
+const BAR_COLOR: Record<string, string> = {
+  ok:      "bg-teal-400",
+  caution: "bg-yellow-400",
+  ng:      "bg-red-400",
+};
+
+function getStatus(value: number, okMax: number, ngMin: number) {
+  if (value <= okMax) return "ok";
+  if (value < ngMin)  return "caution";
+  return "ng";
 }
 
-// ─── 栄養バーの色 ─────────────────────────────────────────────
-function barColor(status: string) {
-  if (status === "ng")      return "bg-red-400";
-  if (status === "caution") return "bg-yellow-400";
-  return "bg-teal-400";
+// ─── 直近7日間 ───────────────────────────────────────────────
+function getLast7Days() {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return toDateStr(d);
+  });
 }
 
-function labelColor(status: string) {
-  if (status === "ng")      return "text-red-500";
-  if (status === "caution") return "text-yellow-500";
-  return "text-teal-600";
+// ─── 今日の日付表示 ──────────────────────────────────────────
+function todayLabel() {
+  return new Date().toLocaleDateString("ja-JP", {
+    month: "long", day: "numeric", weekday: "short",
+  });
 }
 
-// ─── ステータス日本語 ────────────────────────────────────────
-function statusLabel(status: string) {
-  if (status === "ng")      return "多すぎ";
-  if (status === "caution") return "やや多め";
-  return "良好";
-}
-
-// ─── 判定カードの背景色 ───────────────────────────────────────
-function overallStyle(overall: string) {
-  if (overall === "ng")      return { bg: "bg-red-50 border-red-200",   text: "text-red-600",   label: "要注意" };
-  if (overall === "caution") return { bg: "bg-yellow-50 border-yellow-200", text: "text-yellow-600", label: "注意" };
-  return { bg: "bg-teal-50 border-teal-200", text: "text-teal-600", label: "良好" };
-}
-
-// ─── メインコンポーネント ─────────────────────────────────────
 export default function HomePage() {
-  const [showForm, setShowForm]               = useState(false);
-  const [input, setInput]                     = useState("");
-  const [savedMeal, setSavedMeal]             = useState("");
-  const [savedItems, setSavedItems]           = useState<MealItem[]>([]);
-  const [result, setResult]                   = useState<ReturnType<typeof judgeMeal> | null>(null);
-  const [unknownFoods, setUnknownFoods]       = useState<string[]>([]);
-  const [hasStartedEditing, setHasStartedEditing] = useState(false);
+  const today = toDateStr(new Date());
 
-  // 入力テキスト → MealItem 変換
-  const parseInputToItems = (text: string): { items: MealItem[]; unknown: string[] } => {
-    const items: MealItem[]  = [];
-    const unknown: string[]  = [];
-    const tokens = text.split(/[\s、,]+/).map((t) => t.trim()).filter(Boolean);
-    tokens.map((t) => aliasMap[t] ?? t).forEach((token) => {
-      const food = findFood(token);
-      if (food) items.push({ food, amount: 100 });
-      else      unknown.push(token);
-    });
-    return { items, unknown };
+  const [history, setHistory]     = useState<Meal[]>([]);
+  const [vitals, setVitals]       = useState<DailyVitals>({ date: today });
+  const [editVitals, setEditVitals] = useState<DailyVitals>({ date: today });
+  const [showVitals, setShowVitals] = useState(false);
+
+  useEffect(() => {
+    setHistory(getMealHistory());
+    const v = getDailyVitals(today);
+    setVitals(v);
+    setEditVitals(v);
+  }, [today]);
+
+  const todayMeals  = history.filter((m) => m.date === today);
+  const last7       = getLast7Days();
+
+  // 今日の合計栄養
+  const todayTotal = todayMeals.reduce(
+    (acc, m) => ({
+      water:      acc.water      + (m.total.water      ?? 0),
+      sodium:     acc.sodium     + (m.total.sodium     ?? 0),
+      potassium:  acc.potassium  + (m.total.potassium  ?? 0),
+      phosphorus: acc.phosphorus + (m.total.phosphorus ?? 0),
+    }),
+    { water: 0, sodium: 0, potassium: 0, phosphorus: 0 }
+  );
+  const hasTodayData = todayMeals.length > 0;
+
+  // 日別のサマリー（カレンダー用）
+  function dayStatus(dateStr: string) {
+    const meals = history.filter((m) => m.date === dateStr);
+    if (meals.length === 0) return "none";
+    const hasNg      = meals.some((m) => m.overall === "ng");
+    const hasCaution = meals.some((m) => m.overall === "caution");
+    return hasNg ? "ng" : hasCaution ? "caution" : "ok";
+  }
+
+  // バイタル保存
+  const handleSaveVitals = () => {
+    saveDailyVitals({ ...editVitals, date: today });
+    setVitals({ ...editVitals, date: today });
+    setShowVitals(false);
   };
-
-  const handleQuickAdd = (foodName: string) =>
-    setInput((prev) => (prev ? `${prev}、${foodName}` : foodName));
-
-  const handleSave = () => {
-    const normalized = input
-      .replace(/\s+/g, "、")
-      .replace(/、{2,}/g, "、")
-      .replace(/^、|、$/g, "");
-
-    const { items, unknown } = parseInputToItems(normalized);
-    setSavedMeal(normalized);
-    setSavedItems(items);
-    setUnknownFoods(unknown);
-    setResult(judgeMeal(items));
-    setInput("");
-    setHasStartedEditing(false);
-    setShowForm(false);
-  };
-
-  const quickFoods = ["ご飯", "味噌汁", "卵", "納豆", "ヨーグルト"];
-  const totals     = savedItems.length > 0 ? calculateTotals(savedItems) : null;
-  const advice     = result ? generateAdvice(result) : null;
-  const overall    = result ? overallStyle(result.overall) : null;
 
   return (
     <main className="min-h-screen bg-gray-50">
 
-      {/* ── ヘッダー ─────────────────────────────────────── */}
-      <header className="bg-white border-b px-6 py-4 sticky top-0 z-10">
+      {/* ── ヘッダー ──────────────────────────────────────────── */}
+      <header className="bg-white border-b px-5 py-4 sticky top-0 z-10 shadow-sm">
         <div className="mx-auto max-w-md flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-gray-800">食事チェック</h1>
-            <p className="text-xs text-gray-400 mt-0.5">透析患者さんの食事サポート</p>
+            <p className="text-xs text-gray-400">{todayLabel()}</p>
           </div>
-          <span className="text-2xl">🍱</span>
+          <span className="text-3xl">🍱</span>
         </div>
       </header>
 
-      <div className="mx-auto max-w-md px-4 py-6 space-y-4">
+      <div className="mx-auto max-w-md px-4 py-5 space-y-4">
 
-        {/* ── 今日の栄養状態カード ──────────────────────────── */}
-        {result && totals && overall && (
-          <section className={`rounded-2xl border p-4 space-y-3 ${overall.bg}`}>
-            <div className="flex items-center justify-between">
-              <p className="font-bold text-gray-700">今日の栄養状態</p>
-              <span className={`text-sm font-semibold px-2 py-0.5 rounded-full border ${overall.text} ${overall.bg}`}>
-                {overall.label}
-              </span>
-            </div>
+        {/* ── 今日の栄養サマリー ──────────────────────────────── */}
+        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="font-bold text-gray-700">今日の栄養状態</p>
+            {hasTodayData && (
+              <span className="text-xs text-gray-400">{todayMeals.length}食記録済み</span>
+            )}
+          </div>
 
-            {/* 水分 */}
-            <div>
-              <div className="flex justify-between text-xs text-gray-500 mb-1">
-                <span>水分</span>
-                <span className="font-medium text-gray-700">{totals.water} ml</span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-300 rounded-full transition-all"
-                  style={{ width: `${Math.min((totals.water / 1500) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* ナトリウム */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-500">ナトリウム（塩分）</span>
-                <span className={`font-semibold ${labelColor(result.sodium.status)}`}>
-                  {result.sodium.value} mg ・ {statusLabel(result.sodium.status)}
-                </span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${barColor(result.sodium.status)}`}
-                  style={{ width: `${Math.min((result.sodium.value / 1050) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* カリウム */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-500">カリウム</span>
-                <span className={`font-semibold ${labelColor(result.potassium.status)}`}>
-                  {result.potassium.value} mg ・ {statusLabel(result.potassium.status)}
-                </span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${barColor(result.potassium.status)}`}
-                  style={{ width: `${Math.min((result.potassium.value / 825) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* リン */}
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-500">リン</span>
-                <span className={`font-semibold ${labelColor(result.phosphorus.status)}`}>
-                  {result.phosphorus.value} mg ・ {statusLabel(result.phosphorus.status)}
-                </span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${barColor(result.phosphorus.status)}`}
-                  style={{ width: `${Math.min((result.phosphorus.value / 330) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── 今日のひとこと ───────────────────────────────── */}
-        {advice && (
-          <section className="rounded-2xl bg-white border px-4 py-3 flex gap-3 items-start shadow-sm">
-            <span className="text-xl mt-0.5">💬</span>
-            <p className="text-sm text-gray-600 leading-relaxed">{advice}</p>
-          </section>
-        )}
-
-        {/* ── 記録ボタン ───────────────────────────────────── */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="flex-1 rounded-xl bg-teal-600 px-4 py-3 text-white font-semibold shadow hover:bg-teal-700 transition-colors text-center"
-          >
-            ＋ 食事を記録する
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-600 shadow-sm hover:opacity-80 transition-opacity text-sm"
-          >
-            自由入力で追加
-          </button>
-        </div>
-
-        {/* ── 入力フォーム ─────────────────────────────────── */}
-        {showForm && (
-          <section className="rounded-2xl bg-white border p-4 shadow-sm space-y-3">
-            <p className="font-semibold text-gray-700">食事を入力</p>
-
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => {
-                let value = e.target.value;
-                value = value.replace(/\s+/g, "、");
-                value = value.replace(/、{2,}/g, "、");
-                setInput(value);
-              }}
-              onFocus={() => {
-                if (!hasStartedEditing) {
-                  setInput("");
-                  setSavedMeal("");
-                  setSavedItems([]);
-                  setResult(null);
-                  setUnknownFoods([]);
-                  setHasStartedEditing(true);
-                }
-              }}
-              placeholder="例：ごはん、味噌汁、豚肉"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
-
-            {/* クイックボタン */}
-            <div className="flex flex-wrap gap-2">
-              {quickFoods.map((foodName) => {
-                const food = findFood(foodName);
+          {hasTodayData ? (
+            <div className="space-y-2">
+              {[
+                { label: "水分",   value: todayTotal.water,      unit: "ml",  ok: 1500, ng: 2000 },
+                { label: "塩分",   value: todayTotal.sodium,     unit: "mg",  ok: 700,  ng: 1050 },
+                { label: "カリウム", value: todayTotal.potassium, unit: "mg",  ok: 550,  ng: 825  },
+                { label: "リン",   value: todayTotal.phosphorus, unit: "mg",  ok: 220,  ng: 330  },
+              ].map(({ label, value, unit, ok, ng }) => {
+                const st = getStatus(value, ok, ng);
                 return (
-                  <button
-                    key={foodName}
-                    type="button"
-                    onClick={() => handleQuickAdd(foodName)}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                  >
-                    {food?.image && (
-                      <Image
-                        src={food.image}
-                        alt={food.name}
-                        width={20}
-                        height={20}
-                        className="rounded-full object-cover w-5 h-5"
+                  <div key={label}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-gray-500">{label}</span>
+                      <span className={`font-semibold ${
+                        st === "ng" ? "text-red-500" : st === "caution" ? "text-yellow-500" : "text-teal-600"
+                      }`}>
+                        {value.toLocaleString()} {unit}
+                      </span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${BAR_COLOR[st] ?? "bg-teal-400"}`}
+                        style={{ width: `${Math.min((value / ng) * 100, 100)}%` }}
                       />
-                    )}
-                    {foodName}
-                  </button>
+                    </div>
+                  </div>
                 );
               })}
             </div>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-3">
+              まだ記録がありません
+            </p>
+          )}
+        </section>
 
-            <div className="flex gap-2">
+        {/* ── ＋食事を記録するボタン ────────────────────────────── */}
+        <Link
+          href="/meal"
+          className="block w-full rounded-2xl bg-teal-600 py-5 text-center text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-98 transition-all"
+        >
+          ＋ 食事を記録する
+        </Link>
+
+        {/* ── バイタル入力 ───────────────────────────────────────── */}
+        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="font-bold text-gray-700">今日のバイタル</p>
+            <button
+              type="button"
+              onClick={() => setShowVitals((v) => !v)}
+              className="text-xs text-teal-600 font-semibold border border-teal-200 rounded-full px-3 py-1 hover:bg-teal-50"
+            >
+              {showVitals ? "閉じる" : "入力する"}
+            </button>
+          </div>
+
+          {/* 保存済みバイタル表示 */}
+          {!showVitals && (vitals.weight || vitals.bpSystolic || vitals.pulse) ? (
+            <div className="grid grid-cols-3 gap-2 text-center">
+              {vitals.weight && (
+                <div className="bg-gray-50 rounded-xl py-2">
+                  <p className="text-lg font-bold text-gray-800">{vitals.weight}</p>
+                  <p className="text-xs text-gray-400">体重 kg</p>
+                </div>
+              )}
+              {vitals.bpSystolic && vitals.bpDiastolic && (
+                <div className="bg-gray-50 rounded-xl py-2">
+                  <p className="text-lg font-bold text-gray-800">
+                    {vitals.bpSystolic}/{vitals.bpDiastolic}
+                  </p>
+                  <p className="text-xs text-gray-400">血圧 mmHg</p>
+                </div>
+              )}
+              {vitals.pulse && (
+                <div className="bg-gray-50 rounded-xl py-2">
+                  <p className="text-lg font-bold text-gray-800">{vitals.pulse}</p>
+                  <p className="text-xs text-gray-400">脈拍 bpm</p>
+                </div>
+              )}
+            </div>
+          ) : !showVitals ? (
+            <p className="text-sm text-gray-400 text-center py-1">
+              未入力です
+            </p>
+          ) : null}
+
+          {/* 入力フォーム */}
+          {showVitals && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <label className="space-y-1">
+                  <span className="text-xs text-gray-500">体重 (kg)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editVitals.weight ?? ""}
+                    onChange={(e) => setEditVitals((v) => ({ ...v, weight: parseFloat(e.target.value) || undefined }))}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    placeholder="55.0"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-xs text-gray-500">脈拍 (bpm)</span>
+                  <input
+                    type="number"
+                    value={editVitals.pulse ?? ""}
+                    onChange={(e) => setEditVitals((v) => ({ ...v, pulse: parseInt(e.target.value) || undefined }))}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    placeholder="72"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-xs text-gray-500">収縮期血圧 (mmHg)</span>
+                  <input
+                    type="number"
+                    value={editVitals.bpSystolic ?? ""}
+                    onChange={(e) => setEditVitals((v) => ({ ...v, bpSystolic: parseInt(e.target.value) || undefined }))}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    placeholder="120"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-xs text-gray-500">拡張期血圧 (mmHg)</span>
+                  <input
+                    type="number"
+                    value={editVitals.bpDiastolic ?? ""}
+                    onChange={(e) => setEditVitals((v) => ({ ...v, bpDiastolic: parseInt(e.target.value) || undefined }))}
+                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    placeholder="80"
+                  />
+                </label>
+              </div>
               <button
                 type="button"
-                onClick={handleSave}
-                className="flex-1 rounded-lg bg-teal-600 py-2 text-white font-semibold hover:bg-teal-700 transition-colors"
+                onClick={handleSaveVitals}
+                className="w-full rounded-xl bg-teal-600 py-3 text-white font-semibold hover:bg-teal-700 transition-colors"
               >
                 保存する
               </button>
-              <button
-                type="button"
-                onClick={() => { setShowForm(false); setInput(""); }}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-gray-500 text-sm hover:bg-gray-50 transition-colors"
-              >
-                キャンセル
-              </button>
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
-        {/* ── 食事記録カード ───────────────────────────────── */}
-        {savedMeal && (
-          <section className="rounded-2xl bg-white border p-4 shadow-sm space-y-3">
-            <p className="font-semibold text-gray-700">保存した食事</p>
-
-            {/* 食品チップ */}
-            <div className="flex flex-wrap gap-2">
-              {savedMeal.split(/[\s,、]+/).filter(Boolean).map((item, index) => {
-                const isUnknown = unknownFoods.includes(item);
-                const food      = findFood(item);
-                return (
-                  <span
-                    key={index}
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                      isUnknown
-                        ? "bg-red-50 text-red-500 border border-red-200"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {food?.image && (
-                      <Image
-                        src={food.image}
-                        alt={food.name}
-                        width={20}
-                        height={20}
-                        className="rounded-full object-cover w-5 h-5"
-                      />
-                    )}
-                    {item}
+        {/* ── 直近7日間カレンダー ───────────────────────────────── */}
+        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+          <p className="font-bold text-gray-700">直近7日間</p>
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {last7.map((dateStr) => {
+              const st    = dayStatus(dateStr);
+              const day   = new Date(dateStr).getDate();
+              const isToday = dateStr === today;
+              return (
+                <div key={dateStr} className="flex flex-col items-center gap-1">
+                  <span className={`text-xs ${isToday ? "font-bold text-teal-600" : "text-gray-400"}`}>
+                    {day}
                   </span>
-                );
-              })}
-            </div>
+                  <div className={`w-6 h-6 rounded-full ${DOT[st]} ${isToday ? "ring-2 ring-teal-400 ring-offset-1" : ""}`} />
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-3 text-xs text-gray-400 justify-center pt-1">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-400 inline-block" />良好</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />注意</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />多すぎ</span>
+          </div>
+        </section>
 
-            {/* 未登録食品 */}
-            {unknownFoods.length > 0 && (
-              <div className="rounded-xl bg-red-50 border border-red-100 px-3 py-2">
-                <p className="text-xs font-bold text-red-500">未登録の食品</p>
-                <p className="text-xs text-red-400 mt-1">
-                  {unknownFoods.join("、")} は現在データベースに未登録です
+        {/* ── 今日の食事一覧 ────────────────────────────────────── */}
+        {todayMeals.length > 0 && (
+          <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-2">
+            <p className="font-bold text-gray-700">今日の食事記録</p>
+            {todayMeals.map((meal) => (
+              <div key={meal.id} className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
+                <p className="text-sm text-gray-700 truncate flex-1">
+                  {meal.items.map((i) => i.name).join("・")}
                 </p>
+                <span className={`ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${
+                  meal.overall === "ng"      ? "bg-red-100 text-red-600"
+                  : meal.overall === "caution" ? "bg-yellow-100 text-yellow-600"
+                  : "bg-teal-100 text-teal-600"
+                }`}>
+                  {meal.overall === "ng" ? "要注意" : meal.overall === "caution" ? "注意" : "良好"}
+                </span>
               </div>
-            )}
+            ))}
           </section>
         )}
 
-        {/* ── プレミアムボタン ─────────────────────────────── */}
+        {/* ── プレミアムセクション ──────────────────────────────── */}
         <section className="rounded-2xl bg-gradient-to-r from-teal-50 to-white border border-teal-100 p-4 text-center space-y-2">
           <p className="text-xs text-gray-400">より詳しい管理でさらに安心</p>
           <PremiumButton />
