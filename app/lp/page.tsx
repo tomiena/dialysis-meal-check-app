@@ -1,4 +1,3 @@
-import Image from "next/image";
 import PremiumButton from "@/app/components/PremiumButton";
 
 export default function LP() {
@@ -106,10 +105,9 @@ export default function LP() {
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-4 scrollbar-hide">
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/screenshots/result-main.png"
-                width={256}
-                height={480}
                 className="w-full h-auto"
                 alt="ナトリウム・カリウム・リンの判定結果画面"
               />
@@ -120,10 +118,9 @@ export default function LP() {
 
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/screenshots/select.png"
-                width={256}
-                height={480}
                 className="w-full h-auto"
                 alt="食材を選んで判定する操作画面"
               />
@@ -134,10 +131,9 @@ export default function LP() {
 
           <div className="flex-none w-64 snap-center">
             <div className="rounded-2xl shadow-md border bg-white overflow-hidden">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/screenshots/result-trust.png"
-                width={256}
-                height={480}
                 className="w-full h-auto"
                 alt="塩分・カリウム・リンの詳細判定とアドバイス表示"
               />
