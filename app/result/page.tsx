@@ -93,9 +93,10 @@ function ResultContent() {
   const searchParams = useSearchParams();
   const savedRef = useRef(false);
 
-  const foodsParam   = searchParams.get("foods")   ?? "";
-  const dateParam    = searchParams.get("date")    ?? toDateStr(new Date());
-  const unknownParam = searchParams.get("unknown") ?? "";
+  // decodeURIComponent handles both raw and percent-encoded URLs (e.g. %2C → ,)
+  const foodsParam   = decodeURIComponent(searchParams.get("foods")   ?? "");
+  const dateParam    =                    searchParams.get("date")    ?? toDateStr(new Date());
+  const unknownParam = decodeURIComponent(searchParams.get("unknown") ?? "");
   const unknownFoods = unknownParam.split(",").filter(Boolean);
 
   const items: MealItem[] = foodsParam

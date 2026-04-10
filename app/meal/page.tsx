@@ -37,10 +37,56 @@ function formatDateJP(dateStr: string) {
   });
 }
 
+// ─── 自由入力 別名辞書（token → food id） ───────────────
+// 名前ベースの照合に頼らず ID を直接引くことで確実に認識させる
+const FOOD_ALIASES: Record<string, string> = {
+  // 主食
+  "ご飯": "rice",        "白飯": "rice",        "ライス": "rice",
+  "パスタ": "pasta",     "スパゲティ": "spaghetti",
+  "うどん": "udon",      "そば": "soba",
+  // お茶・飲み物
+  "お茶": "green_tea",   "緑茶": "green_tea",   "煎茶": "green_tea",
+  "麦茶": "barley_tea",  "ほうじ茶": "barley_tea",
+  "ウーロン茶": "oolong_tea",
+  "コーヒー": "coffee",  "紅茶": "black_tea",
+  "牛乳": "milk",        "コーラ": "cola",
+  // 野菜・果物
+  "トマト": "tomato",    "レタス": "lettuce",   "きゅうり": "cucumber",
+  "キャベツ": "cabbage", "白菜": "napa_cabbage","ほうれん草": "spinach",
+  "ブロッコリー": "broccoli", "大根": "daikon", "にんじん": "carrot",
+  "玉ねぎ": "onion",     "なす": "eggplant",    "もやし": "bean_sprouts",
+  "じゃがいも": "potato","さつまいも": "sweet_potato",
+  // 肉・魚
+  "牛肉": "beef",        "豚肉": "pork",        "鶏肉": "chicken_thigh",
+  "鶏胸肉": "chicken_breast", "えび": "shrimp", "いか": "squid",
+  "サーモン": "salmon",  "まぐろ": "tuna",      "さば": "mackerel",
+  // 卵・大豆
+  "卵": "egg",           "たまご": "egg",       "豆腐": "tofu",
+  "納豆": "natto",       "枝豆": "edamame",
+  // 調理済み（exact name があっても明示して確実認識）
+  "コロッケ": "croquette",
+  "エビフライ": "fried_shrimp",
+  "カレーライス": "curry_rice",   "カレー": "curry_rice",
+  "ポテトサラダ": "potato_salad",
+  "野菜スープ": "vegetable_soup",
+  "おでん": "oden",
+  "ラーメン": "ramen",
+  "チャーハン": "fried_rice",
+  "から揚げ": "karaage", "唐揚げ": "karaage",  "鶏の唐揚げ": "karaage",
+  "とんかつ": "tonkatsu","ハンバーグ": "hamburger_steak",
+  "餃子": "gyoza",       "天ぷら": "tempura",   "春巻き": "spring_roll",
+  "焼きそば": "yakisoba","オムライス": "omurice","サラダ": "salad",
+  "サンドイッチ": "sandwich", "お弁当": "bento","ピザ": "pizza",
+  "寿司": "sushi",       "焼き魚": "grilled_fish",
+  // 汁物
+  "みそ汁": "miso_soup", "味噌汁": "miso_soup", "とん汁": "tonjiru",
+  "豚汁": "tonjiru",     "すまし汁": "clear_soup",
+};
+
 // ─── 自由入力パーサー ────────────────────────────────────
 function parseFreeInput(text: string): { matched: Food[]; unknown: string[] } {
   const tokens = text
-    .split(/[,、，\n]+/)
+    .split(/[,、，\s]+/)   // スペース区切りも許容
     .map((s) => s.trim())
     .filter(Boolean);
 
@@ -48,9 +94,14 @@ function parseFreeInput(text: string): { matched: Food[]; unknown: string[] } {
   const unknown: string[] = [];
 
   for (const token of tokens) {
+    // 1. 別名辞書でIDを直接引く（最優先・確実）
+    const aliasId = FOOD_ALIASES[token];
     const food =
+      (aliasId ? FOODS.find((f) => f.id === aliasId) : undefined) ??
+      // 2. 食品名との完全一致
       FOODS.find((f) => f.name === token) ??
-      FOODS.find((f) => f.name.includes(token) || token.includes(f.name));
+      // 3. 食品名がトークンを含む（部分一致）
+      FOODS.find((f) => f.name.includes(token));
 
     if (food && !matched.find((m) => m.id === food.id)) {
       matched.push(food);
@@ -138,18 +189,21 @@ export default function MealPage() {
   const parsedTokens = useMemo(() => parseFreeInput(freeText), [freeText]);
 
   const handleSaveFree = () => {
-    const { matched, unknown } = parsedTokens;
+    // parsedTokens (useMemo) may be stale on fast submit; recompute fresh
+    const { matched, unknown } = parseFreeInput(freeText);
     if (matched.length === 0 && unknown.length === 0) return;
     const isPremium = getIsPremium();
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
 
+    // Food IDs are ASCII alphanumeric+underscore; amounts are numbers.
+    // `:` and `,` are valid query-string characters — skip encodeURIComponent
+    // so the result page can split(",") and split(":") on literal chars.
     const foodsParam = matched.map((f) => `${f.id}:100`).join(",");
-    const url = new URL("/result", window.location.origin);
-    url.searchParams.set("date", selectedDate);
-    if (foodsParam)         url.searchParams.set("foods",   foodsParam);
-    if (unknown.length > 0) url.searchParams.set("unknown", unknown.join(","));
-    router.push(url.pathname + url.search);
+    let pushUrl = `/result?date=${selectedDate}`;
+    if (foodsParam)         pushUrl += `&foods=${foodsParam}`;
+    if (unknown.length > 0) pushUrl += `&unknown=${unknown.join(",")}`;
+    router.push(pushUrl);
   };
 
   // ── 制限画面 ───────────────────────────────────────────
@@ -251,8 +305,8 @@ export default function MealPage() {
             onClick={() => setMode("select")}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
               mode === "select"
-                ? "bg-white text-teal-700 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-600 text-white shadow-sm"
+                : "bg-white border border-teal-500 text-teal-600"
             }`}
           >
             食材を選ぶ
@@ -262,8 +316,8 @@ export default function MealPage() {
             onClick={() => setMode("free")}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
               mode === "free"
-                ? "bg-white text-teal-700 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-600 text-white shadow-sm"
+                : "bg-white border border-teal-500 text-teal-600"
             }`}
           >
             自由入力する
@@ -275,6 +329,7 @@ export default function MealPage() {
           <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
             <p className="text-sm font-bold text-gray-700">食べたものを入力してください</p>
             <p className="text-xs text-gray-400">カンマ・読点で区切ると複数入力できます</p>
+            <p className="text-xs text-teal-600">「食材を選ぶ」タブからも食品を選べます</p>
             <textarea
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
