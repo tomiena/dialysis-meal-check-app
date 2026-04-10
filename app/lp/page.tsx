@@ -206,12 +206,12 @@ export default function LP() {
           <div className="text-center pt-2 pb-6">
             <button
               onClick={handleCheckout}
-              className="w-full max-w-md mx-auto rounded-2xl bg-emerald-600 py-4 text-white shadow-lg hover:bg-emerald-700 transition flex flex-col items-center justify-center leading-tight"
+              className="w-full max-w-md mx-auto block bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-2xl shadow-md transition duration-200 text-center"
             >
-              <span className="text-base font-semibold">
+              <span className="block text-lg">
                 プレミアムを始める
               </span>
-              <span className="text-sm font-normal opacity-90">
+              <span className="block text-sm opacity-90">
                 買い切り ¥500
               </span>
             </button>
