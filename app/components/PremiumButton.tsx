@@ -46,9 +46,16 @@ export default function PremiumButton({ label = "プレミアムを始める（�
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className={`rounded-xl bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${small ? "px-3 py-1.5 text-xs" : "px-6 py-3"}`}
+        className={`w-full max-w-md mx-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-2xl shadow-md transition duration-200 flex flex-col items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed ${small ? "text-xs py-2" : ""}`}
       >
-        {loading ? "処理中..." : label}
+        {loading ? (
+          <span className="text-base font-semibold">処理中...</span>
+        ) : (
+          <>
+            <span className="text-base font-semibold">プレミアムを始める</span>
+            <span className="text-sm font-normal opacity-90">買い切り ¥500</span>
+          </>
+        )}
       </button>
       {error && (
         <p className="text-red-500 text-sm text-center max-w-xs">{error}</p>
