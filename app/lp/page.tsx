@@ -1,3 +1,24 @@
+"use client";
+
+const handleCheckout = async () => {
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("決済ページの取得に失敗しました。");
+    }
+  } catch (error) {
+    console.error("Checkout Error:", error);
+    alert("エラーが発生しました。");
+  }
+};
+
 export default function LPPage() {
   return (
     <main className="bg-white text-gray-800">
@@ -153,12 +174,12 @@ export default function LPPage() {
           <p className="text-gray-500">毎月の課金はありません。</p>
         </div>
 
-        <a
-          href="/"
+        <button
+          onClick={handleCheckout}
           className="inline-block mt-8 bg-teal-600 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-md hover:bg-teal-700 transition"
         >
           必要な方はこちら
-        </a>
+        </button>
       </section>
     </main>
   );
