@@ -104,24 +104,29 @@ export default function LP() {
           食べた結果がすぐ分かる
         </h2>
 
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-4">
-          {[
-            { src: "/screenshots/result.png",  title: "食べた後、すぐ判定", sub: "色でパッと分かる" },
-            { src: "/screenshots/select.png",  title: "食材を選ぶだけ",     sub: "入力は30秒以内" },
-            { src: "/screenshots/advice.png",  title: "アドバイスも表示",   sub: "次の食事に活かせる" },
-          ].map(({ src, title, sub }) => (
-            <div key={src} className="flex-none w-56 snap-center">
-              <div className="rounded-2xl shadow-md border border-gray-100 bg-white overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} className="w-full h-auto" alt={title} />
-              </div>
-              <p className="mt-3 text-sm font-semibold text-gray-700 text-center">{title}</p>
-              <p className="text-xs text-gray-400 text-center mt-0.5">{sub}</p>
-            </div>
-          ))}
-        </div>
+        <div className="grid md:grid-cols-2 gap-8 mt-12 px-6">
+          <div className="text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/screenshots/result-main.png"
+              alt="判定結果画面"
+              className="rounded-xl shadow-md mx-auto"
+            />
+            <p className="mt-4 font-semibold">食べた後、すぐ判定</p>
+            <p className="text-gray-500 text-sm">色でパッと分かる</p>
+          </div>
 
-        <p className="text-center text-xs text-gray-400 mt-2">← スワイプで確認 →</p>
+          <div className="text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/screenshots/result-trust.png"
+              alt="アドバイス画面"
+              className="rounded-xl shadow-md mx-auto"
+            />
+            <p className="mt-4 font-semibold">アドバイスも表示</p>
+            <p className="text-gray-500 text-sm">次の食事に活かせる</p>
+          </div>
+        </div>
 
         <div className="text-center mt-10 px-6">
           <a
@@ -210,7 +215,7 @@ export default function LP() {
           <div className="text-center pt-2 pb-6">
             <button
               onClick={handleCheckout}
-              className="w-full bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-semibold py-4 px-8 rounded-xl shadow-md transition-all text-base"
+              className="mt-6 w-full max-w-md bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 px-8 rounded-full shadow-md transition mx-auto block"
             >
               必要な方はこちら
             </button>
