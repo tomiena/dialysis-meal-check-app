@@ -215,7 +215,6 @@ export default function LP() {
                 毎月の課金はありません。
               </span>
             </button>
-            <p className="mt-2 text-xs text-gray-400">¥500 / 買い切り・返金不可</p>
           </div>
         </div>
       </section>
