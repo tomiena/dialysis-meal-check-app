@@ -504,22 +504,38 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
       )}
 
       {/* ── 下部固定ボタン ────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4 shadow-lg z-20">
-        <div className="mx-auto max-w-md">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 shadow-lg z-20">
+        <div className="mx-auto max-w-md space-y-1.5">
           {mode === "select" ? (
-            portionMap.size > 0 ? (
-              <button type="button" onClick={handleSaveSelect}
-                className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all">
-                {portionMap.size}品を選択 → 保存する
+            <>
+              {portionMap.size > 0 && (
+                <p className="text-center text-sm text-teal-600 font-medium">
+                  {portionMap.size}品選択中
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={handleSaveSelect}
+                disabled={portionMap.size === 0}
+                className={`w-full rounded-2xl py-4 text-lg font-bold transition-all ${
+                  portionMap.size > 0
+                    ? "bg-teal-600 text-white shadow-md hover:bg-teal-700 active:scale-[0.98]"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {portionMap.size === 0 ? "食材を選んでください" : "食事を保存する"}
               </button>
-            ) : (
-              <p className="text-center text-gray-400 text-sm py-3">食品をタップして選んでください</p>
-            )
+            </>
           ) : (
-            <button type="button" onClick={handleSaveFree}
+            <button
+              type="button"
+              onClick={handleSaveFree}
               disabled={parsedTokens.matched.length === 0 && parsedTokens.unknown.length === 0}
-              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-              保存する
+              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
+            >
+              {parsedTokens.matched.length === 0 && parsedTokens.unknown.length === 0
+                ? "食材を入力してください"
+                : "食事を保存する"}
             </button>
           )}
         </div>
