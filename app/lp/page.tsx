@@ -332,6 +332,10 @@ export default function LP() {
             </div>
           </div>
 
+          <p className="text-sm text-gray-500 text-center mt-3">
+            透析専門看護師・管理栄養士監修
+          </p>
+
           {/* Stripe CTA */}
           <button
             onClick={handleCheckout}
