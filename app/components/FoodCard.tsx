@@ -1,4 +1,5 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
 import type { Food } from "@/lib/foods";
 
 type Props = {
@@ -8,6 +9,8 @@ type Props = {
 };
 
 export default function FoodCard({ food, selected, onToggle }: Props) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <button
       type="button"
@@ -25,13 +28,14 @@ export default function FoodCard({ food, selected, onToggle }: Props) {
       )}
 
       <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center">
-        {food.image ? (
-          <Image
+        {food.image && !imgError ? (
+          <img
             src={food.image}
             alt={food.name}
             width={56}
             height={56}
             className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
           />
         ) : (
           <span className="text-2xl">🍽</span>
