@@ -85,7 +85,26 @@ export type DailyVitals = {
   bpSystolic?: number;   // mmHg
   bpDiastolic?: number;  // mmHg
   pulse?: number;        // bpm
+  drinkWater?: number;   // ml
 };
+
+export function getDryWeight(): number | null {
+  if (typeof window === "undefined") return null;
+  const v = localStorage.getItem("dryWeight");
+  return v ? parseFloat(v) : null;
+}
+export function saveDryWeight(w: number) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("dryWeight", String(w));
+}
+export function getDialysisInterval(): "1" | "2" {
+  if (typeof window === "undefined") return "1";
+  return (localStorage.getItem("dialysisInterval") as "1" | "2") ?? "1";
+}
+export function saveDialysisInterval(v: "1" | "2") {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("dialysisInterval", v);
+}
 
 export function getDailyVitals(date: string): DailyVitals {
   if (typeof window === "undefined") return { date };

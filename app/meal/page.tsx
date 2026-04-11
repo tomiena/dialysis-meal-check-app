@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FOODS, type Food, type FoodCategory } from "@/lib/foods";
+import { FOODS, type Food, type FoodCategory, type Portion } from "@/lib/foods";
 import { getMealHistory, toDateStr } from "@/lib/storage";
 import { getIsPremium } from "@/lib/premium";
 import FoodCard from "@/app/components/FoodCard";
@@ -123,7 +123,8 @@ export default function MealPage() {
   const [calYear,  setCalYear]  = useState(() => new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth() + 1);
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [portionMap, setPortionMap] = useState<Map<string, number>>(new Map());
+  const [modalFood, setModalFood] = useState<Food | null>(null);
   const [freeText, setFreeText] = useState("");
   const [showFreeLimit, setShowFreeLimit] = useState(false);
 
@@ -168,21 +169,51 @@ export default function MealPage() {
       ? FOODS.filter((f) => f.category === "meat" || f.category === "fish")
       : FOODS.filter((f) => f.category === activeCategory);
 
-  const toggle = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+  function getDefaultPortions(food: Food): Portion[] {
+    if (food.portions && food.portions.length > 0) return food.portions;
+    if (food.category === "drink") {
+      return [
+        { label: "少量(100ml)", amountG: 100 },
+        { label: "コップ1杯(200ml)", amountG: 200 },
+        { label: "多め(350ml)", amountG: 350 },
+      ];
+    }
+    if (food.category === "soup") {
+      return [
+        { label: "少しだけ(50ml)", amountG: 50 },
+        { label: "半分(80ml)", amountG: 80 },
+        { label: "全部飲んだ(150ml)", amountG: 150 },
+      ];
+    }
+    return [
+      { label: "少なめ(70g)", amountG: 70 },
+      { label: "普通(100g)", amountG: 100 },
+      { label: "多め(150g)", amountG: 150 },
+    ];
+  }
+
+  const openModal = (food: Food) => setModalFood(food);
+
+  const selectPortion = (food: Food, amountG: number) => {
+    setPortionMap((prev) => {
+      const next = new Map(prev);
+      if (next.get(food.id) === amountG) {
+        next.delete(food.id);
+      } else {
+        next.set(food.id, amountG);
+      }
       return next;
     });
+    setModalFood(null);
   };
 
   const handleSaveSelect = () => {
-    if (selected.size === 0) return;
+    if (portionMap.size === 0) return;
     const isPremium = getIsPremium();
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
-    const params = Array.from(selected).map((id) => `${id}:100`).join(",");
-    router.push(`/result?foods=${encodeURIComponent(params)}&date=${encodeURIComponent(selectedDate)}`);
+    const params = Array.from(portionMap.entries()).map(([id, amt]) => `${id}:${amt}`).join(",");
+    router.push(`/result?foods=${params}&date=${selectedDate}`);
   };
 
   // ── 自由入力モード ─────────────────────────────────────
@@ -372,9 +403,9 @@ export default function MealPage() {
         {mode === "select" && (
           <div className="flex items-center gap-2 px-1">
             <span className="text-base font-bold text-gray-800">食材を選ぶ</span>
-            {selected.size > 0 && (
+            {portionMap.size > 0 && (
               <span className="text-xs bg-teal-100 text-teal-700 font-bold rounded-full px-2 py-0.5">
-                {selected.size}品選択中
+                {portionMap.size}品選択中
               </span>
             )}
           </div>
@@ -404,8 +435,60 @@ export default function MealPage() {
           <div className="grid grid-cols-3 gap-3">
             {displayFoods.map((food) => (
               <FoodCard key={food.id} food={food}
-                selected={selected.has(food.id)} onToggle={() => toggle(food.id)} />
+                selected={portionMap.has(food.id)} onToggle={() => openModal(food)} />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 分量選択モーダル ─────────────────────────────── */}
+      {modalFood && (
+        <div
+          className="fixed inset-0 z-30 flex items-end justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+          onClick={() => setModalFood(null)}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-t-3xl px-5 pt-5 pb-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 食品名 */}
+            <div className="flex items-center gap-3 mb-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={modalFood.image}
+                alt={modalFood.name}
+                className="w-14 h-14 object-cover rounded-xl border border-gray-100"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+              <div>
+                <p className="font-bold text-gray-800 text-base">{modalFood.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">分量を選んでください</p>
+              </div>
+            </div>
+
+            {/* 分量ボタン */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {getDefaultPortions(modalFood).map((portion) => (
+                <button
+                  key={portion.label}
+                  type="button"
+                  onClick={() => selectPortion(modalFood, portion.amountG)}
+                  className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border-2 border-teal-200 bg-teal-50 hover:bg-teal-100 active:scale-95 transition-all"
+                >
+                  <span className="text-sm font-bold text-teal-700">{portion.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* キャンセル */}
+            <button
+              type="button"
+              onClick={() => setModalFood(null)}
+              className="w-full py-3 rounded-2xl border border-gray-200 text-gray-500 text-sm font-semibold hover:bg-gray-50 active:scale-95 transition-all"
+            >
+              キャンセル
+            </button>
           </div>
         </div>
       )}
@@ -415,10 +498,10 @@ export default function MealPage() {
         <div className="mx-auto max-w-md">
 
           {mode === "select" ? (
-            selected.size > 0 ? (
+            portionMap.size > 0 ? (
               <button type="button" onClick={handleSaveSelect}
                 className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all">
-                {selected.size}品を選択 → 保存する
+                {portionMap.size}品を選択 → 保存する
               </button>
             ) : (
               <p className="text-center text-gray-400 text-sm py-3">食品をタップして選んでください</p>
