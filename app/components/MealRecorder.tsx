@@ -3,7 +3,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FOODS, type Food, type FoodCategory, type Portion } from "@/lib/foods";
-import { getMealHistory, toDateStr } from "@/lib/storage";
+import { getMealHistory, saveMealHistory, toDateStr } from "@/lib/storage";
+import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
+import { generateDetailedAdvice } from "@/lib/advice";
 import { getIsPremium } from "@/lib/premium";
 import FoodCard from "@/app/components/FoodCard";
 import FreeLimitNotice from "@/app/components/FreeLimitNotice";
@@ -229,6 +231,25 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
     const isPremium = getIsPremium();
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
+
+    // 保存はナビゲーション前に1回だけ行う
+    const mealItems: MealItem[] = Array.from(portionMap.entries()).flatMap(([id, amount]) => {
+      const food = FOODS.find((f) => f.id === id);
+      return food ? [{ food, amount }] : [];
+    });
+    if (mealItems.length > 0) {
+      const totals = calculateTotals(mealItems);
+      const judged = judgeMeal(mealItems);
+      const advice = generateDetailedAdvice(judged, mealItems);
+      saveMealHistory({
+        date:    selectedDate,
+        items:   mealItems.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
+        total:   totals,
+        overall: judged.overall,
+        advice:  advice.summary,
+      });
+    }
+
     const params = Array.from(portionMap.entries()).map(([id, amt]) => `${id}:${amt}`).join(",");
     router.push(`/result?foods=${params}&date=${selectedDate}`);
   };
@@ -241,6 +262,25 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
     const isPremium = getIsPremium();
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
+
+    // 保存はナビゲーション前に1回だけ行う（マッチした食品がある場合のみ）
+    if (matched.length > 0) {
+      const mealItems: MealItem[] = matched.map((f) => ({ food: f, amount: 100 }));
+      const totals = calculateTotals(mealItems);
+      const judged = judgeMeal(mealItems);
+      const advice = generateDetailedAdvice(judged, mealItems);
+      saveMealHistory({
+        date:    selectedDate,
+        items:   [
+          ...mealItems.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
+          ...unknown.map((u) => ({ name: u })),
+        ],
+        total:   totals,
+        overall: judged.overall,
+        advice:  advice.summary,
+      });
+    }
+
     const foodsParam = matched.map((f) => `${f.id}:100`).join(",");
     let pushUrl = `/result?date=${selectedDate}`;
     if (foodsParam)         pushUrl += `&foods=${foodsParam}`;

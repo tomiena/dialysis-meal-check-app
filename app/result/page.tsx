@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, Suspense } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FOODS } from "@/lib/foods";
 import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
 import { generateDetailedAdvice } from "@/lib/advice";
-import { saveMealHistory, toDateStr } from "@/lib/storage";
+import { toDateStr } from "@/lib/storage";
 
 // ─── 判定スタイル ─────────────────────────────────────────
 type Status = "ok" | "caution" | "ng";
@@ -97,7 +97,6 @@ function localDateLabel(dateStr: string) {
 function ResultContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const savedRef     = useRef(false);
 
   const foodsParam   = decodeURIComponent(searchParams.get("foods")   ?? "");
   const dateParam    =                    searchParams.get("date")    ?? toDateStr(new Date());
@@ -114,24 +113,11 @@ function ResultContent() {
       return food ? [{ food, amount }] : [];
     });
 
-  const totals        = items.length > 0 ? calculateTotals(items) : null;
-  const result        = items.length > 0 ? judgeMeal(items)        : null;
+  const totals         = items.length > 0 ? calculateTotals(items) : null;
+  const result         = items.length > 0 ? judgeMeal(items)        : null;
   const detailedAdvice = result ? generateDetailedAdvice(result, items) : null;
 
   const overall = result?.overall ?? "ok";
-
-  useEffect(() => {
-    if (savedRef.current || !result || !totals || items.length === 0) return;
-    savedRef.current = true;
-    saveMealHistory({
-      date:    dateParam,
-      items:   items.map((i) => ({ name: i.food.name, foodId: i.food.id, amount: i.amount })),
-      total:   totals,
-      overall: result.overall,
-      advice:  detailedAdvice?.summary ?? undefined,
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (items.length === 0 && unknownFoods.length === 0) {
     return (
