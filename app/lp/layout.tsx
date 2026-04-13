@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     "renal diet app",
     "dialysis diet app",
   ],
+  verification: {
+    google: "_mt6Pt-4_pD5a52Dr3UvTXorO_mPua6-DYxQMZVbiQo",
+  },
 };
 
 export default function LpLayout({ children }: { children: ReactNode }) {
