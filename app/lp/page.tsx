@@ -369,6 +369,28 @@ export default function LP() {
         </div>
       </section>
 
+      {/* ⑩ 開発者・免責事項 ──────────────────────────────── */}
+      <section className="px-6 py-14 bg-gray-50 border-t border-gray-100">
+        <div className="mx-auto max-w-md space-y-8">
+
+          <div className="space-y-3">
+            <SectionLabel>開発者について</SectionLabel>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              看護師資格を取得後、透析医療の現場に22年間従事。患者さんの栄養管理や生活指導に携わる中で、食事制限に悩む多くの声に向き合ってきました。これまでの臨床経験を社会に還元したいという想いから、透析患者さんとそのご家族を支援するため本アプリを開発しました。
+            </p>
+            <p className="text-xs text-gray-400">※ペンネームで活動しています。</p>
+          </div>
+
+          <div className="space-y-3">
+            <SectionLabel>免責事項</SectionLabel>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              本アプリは透析患者の食事管理を支援することを目的としたツールであり、医師や管理栄養士の指導に代わるものではありません。治療や食事制限については、必ず医療専門職にご相談ください。
+            </p>
+          </div>
+
+        </div>
+      </section>
+
     </main>
   );
 }
