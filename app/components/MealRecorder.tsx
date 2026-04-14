@@ -439,6 +439,30 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
           </div>
         )}
 
+        {/* ── 選択中食材チップ一覧 ──────────────────────────── */}
+        {mode === "select" && portionMap.size > 0 && (
+          <div className="flex flex-wrap gap-2 px-1">
+            {Array.from(portionMap.entries()).map(([id, amount]) => {
+              const food = FOODS.find((f) => f.id === id);
+              if (!food) return null;
+              const unit = food.category === "drink" || food.category === "soup" ? "ml" : "g";
+              return (
+                <span key={id} className="flex items-center gap-1 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold rounded-full px-3 py-1">
+                  {food.name} {amount}{unit}
+                  <button
+                    type="button"
+                    onClick={() => setPortionMap((prev) => { const next = new Map(prev); next.delete(id); return next; })}
+                    className="ml-1 text-teal-400 hover:text-red-500 font-bold leading-none"
+                    aria-label={`${food.name}を削除`}
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+        )}
+
       </div>
 
       {/* ── カテゴリタブ sticky ──────────────────────────────── */}
@@ -465,7 +489,14 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
           <div className="grid grid-cols-3 gap-3">
             {displayFoods.map((food) => (
               <FoodCard key={food.id} food={food}
-                selected={portionMap.has(food.id)} onToggle={() => openModal(food)} />
+                selected={portionMap.has(food.id)}
+                onToggle={() => {
+                  if (portionMap.has(food.id)) {
+                    setPortionMap((prev) => { const next = new Map(prev); next.delete(food.id); return next; });
+                  } else {
+                    openModal(food);
+                  }
+                }} />
             ))}
           </div>
         </div>
@@ -509,10 +540,15 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
             </div>
             <button
               type="button"
-              onClick={() => setModalFood(null)}
+              onClick={() => {
+                if (modalFood && portionMap.has(modalFood.id)) {
+                  setPortionMap((prev) => { const next = new Map(prev); next.delete(modalFood.id); return next; });
+                }
+                setModalFood(null);
+              }}
               className="w-full py-3 rounded-2xl border border-gray-200 text-gray-500 text-sm font-semibold hover:bg-gray-50 active:scale-95 transition-all"
             >
-              キャンセル
+              {modalFood && portionMap.has(modalFood.id) ? "選択を解除" : "キャンセル"}
             </button>
           </div>
         </div>
