@@ -15,8 +15,8 @@ export async function POST() {
           quantity: 1,
         },
       ],
-      success_url: "https://food-app-sr7i.vercel.app/premium",
-      cancel_url: "https://food-app-sr7i.vercel.app",
+      success_url: "https://food-app-sr7i.vercel.app/success",
+      cancel_url: "https://food-app-sr7i.vercel.app/cancel",
     });
 
     return NextResponse.json({ url: session.url });
