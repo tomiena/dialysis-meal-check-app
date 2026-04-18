@@ -2,6 +2,16 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  Utensils,
+  PenLine,
+  Check,
+  X,
+  ShoppingBasket,
+} from "lucide-react";
 import { FOODS, type Food, type FoodCategory, type Portion } from "@/lib/foods";
 import { getMealHistory, saveMealHistory, toDateStr } from "@/lib/storage";
 import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
@@ -27,8 +37,10 @@ const CATEGORIES: { id: CategoryId; label: string }[] = [
 
 // ─── カレンダー ───────────────────────────────────────────
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
-const DOT: Record<string, string> = {
-  ok: "bg-teal-400", caution: "bg-yellow-400", ng: "bg-red-400",
+const DOT_COLOR: Record<string, string> = {
+  ok:      "bg-teal-400",
+  caution: "bg-amber-400",
+  ng:      "bg-red-400",
 };
 
 function formatDateJP(dateStr: string) {
@@ -102,7 +114,6 @@ const FOOD_ALIASES: Record<string, string> = {
   "おかゆ": "okayu",     "お粥": "okayu",       "雑炊": "zosui",
   "炊き込みご飯": "takikomi_gohan",              "ちらし寿司": "chirashi_sushi",
   "ちらし": "chirashi_sushi",                    "巻き寿司": "maki_sushi",
-  "巻き寿": "maki_sushi",
   "照り焼きチキン": "teriyaki_chicken",          "照り焼き": "teriyaki_chicken",
   "焼き鳥": "yakitori",  "やきとり": "yakitori", "鶏の塩焼き": "shio_yaki_chicken",
   "塩焼き": "shio_yaki_chicken",                 "チキン南蛮": "chicken_nanban",
@@ -140,19 +151,19 @@ function parseFreeInput(text: string): { matched: Food[]; unknown: string[] } {
   return { matched, unknown };
 }
 
-// ─── MealRecorder コンポーネント ──────────────────────────
+// ─── MealRecorder ─────────────────────────────────────────
 export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: number }) {
   const router = useRouter();
   const today  = toDateStr(new Date());
 
-  const [mode, setMode]               = useState<Mode>("select");
+  const [mode,         setMode]         = useState<Mode>("select");
   const [selectedDate, setSelectedDate] = useState(today);
   const [calYear,  setCalYear]  = useState(() => new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth() + 1);
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [portionMap, setPortionMap] = useState<Map<string, number>>(new Map());
-  const [modalFood, setModalFood] = useState<Food | null>(null);
-  const [freeText, setFreeText] = useState("");
+  const [modalFood,  setModalFood]  = useState<Food | null>(null);
+  const [freeText,   setFreeText]   = useState("");
   const [showFreeLimit, setShowFreeLimit] = useState(false);
 
   useEffect(() => {
@@ -165,9 +176,9 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
   function dayStatus(dateStr: string) {
     const meals = history.filter((m) => m.date === dateStr);
     if (meals.length === 0) return "none";
-    return meals.some((m) => m.overall === "ng") ? "ng"
-      : meals.some((m) => m.overall === "caution") ? "caution"
-      : "ok";
+    return meals.some((m) => m.overall === "ng")      ? "ng"
+      :    meals.some((m) => m.overall === "caution") ? "caution"
+      :                                                  "ok";
   }
 
   const handleBackToToday = () => {
@@ -203,26 +214,24 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
     if (food.portions && food.portions.length > 0) return food.portions;
     if (food.category === "drink") {
       return [
-        { label: "少量(100ml)", amountG: 100 },
+        { label: "少量(100ml)",      amountG: 100 },
         { label: "コップ1杯(200ml)", amountG: 200 },
-        { label: "多め(350ml)", amountG: 350 },
+        { label: "多め(350ml)",      amountG: 350 },
       ];
     }
     if (food.category === "soup") {
       return [
-        { label: "少しだけ(50ml)", amountG: 50 },
-        { label: "半分(80ml)", amountG: 80 },
+        { label: "少しだけ(50ml)",   amountG: 50  },
+        { label: "半分(80ml)",        amountG: 80  },
         { label: "全部飲んだ(150ml)", amountG: 150 },
       ];
     }
     return [
-      { label: "少なめ(70g)", amountG: 70 },
-      { label: "普通(100g)", amountG: 100 },
-      { label: "多め(150g)", amountG: 150 },
+      { label: "少なめ(70g)",  amountG: 70  },
+      { label: "普通(100g)",   amountG: 100 },
+      { label: "多め(150g)",   amountG: 150 },
     ];
   }
-
-  const openModal = (food: Food) => setModalFood(food);
 
   const selectPortion = (food: Food, amountG: number) => {
     setPortionMap((prev) => {
@@ -239,7 +248,6 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
 
-    // 保存はナビゲーション前に1回だけ行う
     const mealItems: MealItem[] = Array.from(portionMap.entries()).flatMap(([id, amount]) => {
       const food = FOODS.find((f) => f.id === id);
       return food ? [{ food, amount }] : [];
@@ -270,7 +278,6 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
     const dayCount  = history.filter((m) => m.date === selectedDate).length;
     if (!isPremium && dayCount >= FREE_MEAL_LIMIT) { setShowFreeLimit(true); return; }
 
-    // 保存はナビゲーション前に1回だけ行う（マッチした食品がある場合のみ）
     if (matched.length > 0) {
       const mealItems: MealItem[] = matched.map((f) => ({ food: f, amount: 100 }));
       const totals = calculateTotals(mealItems);
@@ -299,106 +306,131 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
 
   return (
     <div className="pb-32">
-
       <div className="mx-auto max-w-md px-4 pt-4 space-y-4">
 
-        {/* ── カレンダー ────────────────────────────────────── */}
-        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
+        {/* ── カレンダー ── */}
+        <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="font-bold text-gray-800 text-sm">記録する日を選ぶ</p>
-            <span className="text-xs text-teal-600 font-semibold bg-teal-50 border border-teal-200 rounded-full px-3 py-1">
+            <div className="flex items-center gap-2">
+              <CalendarDays size={16} className="text-teal-500" />
+              <p className="font-bold text-slate-700 text-sm">記録する日</p>
+            </div>
+            <span className="text-xs text-teal-700 font-semibold bg-teal-50 border border-teal-200 rounded-full px-3 py-1">
               {formatDateJP(selectedDate)}
             </span>
           </div>
+
+          {/* 月ナビ */}
           <div className="flex items-center justify-between">
             <button type="button" onClick={prevMonth} aria-label="前の月"
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-xl">
-              ‹
+              className="w-9 h-9 flex items-center justify-center rounded-full active:bg-slate-100 text-slate-500 transition-colors">
+              <ChevronLeft size={20} />
             </button>
-            <p className="font-bold text-gray-700">{calYear}年{calMonth}月</p>
+            <p className="font-bold text-slate-700">{calYear}年{calMonth}月</p>
             <div className="flex items-center gap-1">
               {(calYear !== new Date().getFullYear() || calMonth !== new Date().getMonth() + 1) && (
                 <button type="button" onClick={handleBackToToday}
-                  className="rounded-full border border-teal-400 px-3 py-0.5 text-xs text-teal-600 bg-white hover:bg-teal-50">
-                  当日表示
+                  className="rounded-full border border-teal-400 px-3 py-0.5 text-xs text-teal-600 bg-white active:bg-teal-50 transition-colors">
+                  当日
                 </button>
               )}
               <button type="button" onClick={nextMonth} aria-label="次の月"
-                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-xl">
-                ›
+                className="w-9 h-9 flex items-center justify-center rounded-full active:bg-slate-100 text-slate-500 transition-colors">
+                <ChevronRight size={20} />
               </button>
             </div>
           </div>
+
+          {/* 曜日ヘッダー */}
           <div className="grid grid-cols-7 text-center">
             {WEEKDAYS.map((d, i) => (
               <span key={d} className={`text-xs font-semibold pb-1 ${
-                i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+                i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-slate-400"
               }`}>{d}</span>
             ))}
           </div>
+
+          {/* 日付セル */}
           <div className="grid grid-cols-7 gap-y-1">
             {cells.map((day, idx) => {
               if (day === null) return <div key={`b-${idx}`} className="h-10" />;
-              const dateStr  = `${calYear}-${String(calMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-              const st       = dayStatus(dateStr);
+              const dateStr    = `${calYear}-${String(calMonth).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+              const st         = dayStatus(dateStr);
               const isToday    = dateStr === today;
               const isSelected = dateStr === selectedDate;
-              const colIdx  = idx % 7;
+              const colIdx     = idx % 7;
               return (
                 <button key={dateStr} type="button" onClick={() => setSelectedDate(dateStr)}
-                  className={`flex flex-col items-center justify-center h-10 rounded-xl transition-colors ${
-                    isSelected ? "bg-teal-500" : isToday ? "bg-teal-50 ring-2 ring-teal-400" : "hover:bg-gray-50"
+                  className={`flex flex-col items-center justify-center h-10 rounded-xl transition-all ${
+                    isSelected ? "bg-teal-500 shadow-sm"
+                    : isToday  ? "bg-teal-50 ring-2 ring-teal-400"
+                    :            "active:bg-slate-50"
                   }`}>
                   <span className={`text-xs font-semibold ${
                     isSelected ? "text-white"
-                      : colIdx === 0 ? "text-red-400"
-                      : colIdx === 6 ? "text-blue-400"
-                      : "text-gray-700"
+                    : colIdx === 0 ? "text-red-400"
+                    : colIdx === 6 ? "text-blue-400"
+                    : "text-slate-700"
                   }`}>{day}</span>
                   {st !== "none" && (
-                    <div className={`w-1 h-1 rounded-full mt-0.5 ${isSelected ? "bg-white" : DOT[st]}`} />
+                    <div className={`w-1 h-1 rounded-full mt-0.5 ${
+                      isSelected ? "bg-white" : DOT_COLOR[st]
+                    }`} />
                   )}
                 </button>
               );
             })}
           </div>
-          <div className="flex gap-4 justify-center text-xs text-gray-400 pt-1">
-            {[{ color:"bg-teal-400",label:"良好"},{ color:"bg-yellow-400",label:"注意"},{ color:"bg-red-400",label:"多すぎ"}].map(({color,label}) => (
+
+          {/* 凡例 */}
+          <div className="flex gap-4 justify-center text-xs text-slate-400 pt-1">
+            {[
+              { color: "bg-teal-400",  label: "良好" },
+              { color: "bg-amber-400", label: "注意" },
+              { color: "bg-red-400",   label: "多すぎ" },
+            ].map(({ color, label }) => (
               <span key={label} className="flex items-center gap-1">
-                <span className={`w-2 h-2 rounded-full ${color}`}/>{label}
+                <span className={`w-2 h-2 rounded-full ${color}`} />{label}
               </span>
             ))}
           </div>
         </section>
 
-        {/* ── モード切り替えタブ ──────────────────────────────── */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+        {/* ── モード切り替えタブ ── */}
+        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
           <button type="button" onClick={() => setMode("select")}
-            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-              mode === "select" ? "bg-teal-600 text-white shadow-sm" : "bg-white border border-teal-500 text-teal-600"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-150 ${
+              mode === "select"
+                ? "bg-teal-600 text-white shadow-sm"
+                : "bg-white border border-teal-400 text-teal-700"
             }`}>
+            <Utensils size={14} strokeWidth={2} />
             食材を選ぶ
           </button>
           <button type="button" onClick={() => setMode("free")}
-            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-              mode === "free" ? "bg-teal-600 text-white shadow-sm" : "bg-white border border-teal-500 text-teal-600"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-150 ${
+              mode === "free"
+                ? "bg-teal-600 text-white shadow-sm"
+                : "bg-white border border-teal-400 text-teal-700"
             }`}>
-            自由入力する
+            <PenLine size={14} strokeWidth={2} />
+            自由入力
           </button>
         </div>
 
-        {/* ── 自由入力フォーム ──────────────────────────────── */}
+        {/* ── 自由入力フォーム ── */}
         {mode === "free" && (
-          <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-3">
-            <p className="text-sm font-bold text-gray-700">食べたものを入力してください</p>
-            <p className="text-xs text-gray-400">カンマ・読点で区切ると複数入力できます</p>
-            <p className="text-xs text-teal-600">「食材を選ぶ」タブからも食品を選べます</p>
+          <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+            <div>
+              <p className="text-sm font-bold text-slate-700">食べたものを入力してください</p>
+              <p className="text-xs text-slate-400 mt-0.5">読点・カンマで区切ると複数入力できます</p>
+            </div>
             <textarea
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
               placeholder="例：ラーメン、チャーハン、烏龍茶"
               rows={3}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-base leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-teal-300"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-teal-300 bg-slate-50"
             />
             {parsedTokens.matched.length > 0 && (
               <div className="space-y-1.5">
@@ -414,10 +446,10 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
             )}
             {parsedTokens.unknown.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-gray-400">未登録の食品（結果画面に表示のみ）</p>
+                <p className="text-xs font-semibold text-slate-400">未登録の食品（結果画面に表示のみ）</p>
                 <div className="flex flex-wrap gap-1.5">
                   {parsedTokens.unknown.map((u) => (
-                    <span key={u} className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
+                    <span key={u} className="text-xs bg-slate-100 text-slate-500 px-3 py-1 rounded-full">
                       {u}
                     </span>
                   ))}
@@ -427,19 +459,20 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
           </section>
         )}
 
-        {/* select モードのセクションヘッダー */}
+        {/* select モード ヘッダー */}
         {mode === "select" && (
           <div className="flex items-center gap-2 px-1">
-            <span className="text-base font-bold text-gray-800">食材を選ぶ</span>
+            <ShoppingBasket size={16} className="text-teal-500" />
+            <span className="text-base font-bold text-slate-700">食材を選ぶ</span>
             {portionMap.size > 0 && (
-              <span className="text-xs bg-teal-100 text-teal-700 font-bold rounded-full px-2 py-0.5">
-                {portionMap.size}品選択中
+              <span className="text-xs bg-teal-500 text-white font-bold rounded-full px-2.5 py-0.5">
+                {portionMap.size}品
               </span>
             )}
           </div>
         )}
 
-        {/* ── 選択中食材チップ一覧 ──────────────────────────── */}
+        {/* ── 選択中チップ ── */}
         {mode === "select" && portionMap.size > 0 && (
           <div className="flex flex-wrap gap-2 px-1">
             {Array.from(portionMap.entries()).map(([id, amount]) => {
@@ -447,15 +480,15 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
               if (!food) return null;
               const unit = food.category === "drink" || food.category === "soup" ? "ml" : "g";
               return (
-                <span key={id} className="flex items-center gap-1 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold rounded-full px-3 py-1">
+                <span key={id} className="flex items-center gap-1 bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold rounded-full pl-3 pr-2 py-1">
                   {food.name} {amount}{unit}
                   <button
                     type="button"
                     onClick={() => setPortionMap((prev) => { const next = new Map(prev); next.delete(id); return next; })}
-                    className="ml-1 text-teal-400 hover:text-red-500 font-bold leading-none"
+                    className="ml-0.5 w-4 h-4 rounded-full bg-teal-200 flex items-center justify-center active:bg-red-200 transition-colors"
                     aria-label={`${food.name}を削除`}
                   >
-                    ×
+                    <X size={10} className="text-teal-700" />
                   </button>
                 </span>
               );
@@ -465,15 +498,17 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
 
       </div>
 
-      {/* ── カテゴリタブ sticky ──────────────────────────────── */}
+      {/* ── カテゴリタブ sticky ── */}
       {mode === "select" && (
-        <div className="sticky z-10 bg-white border-b mt-2" style={{ top: stickyOffset }}>
-          <div className="mx-auto max-w-md overflow-x-auto flex gap-2 py-2">
+        <div className="sticky z-10 bg-white border-b border-slate-100 mt-2 shadow-sm" style={{ top: stickyOffset }}>
+          <div className="mx-auto max-w-md overflow-x-auto flex gap-2 py-2.5 scrollbar-hide">
             <div className="w-4 flex-shrink-0" aria-hidden="true" />
             {CATEGORIES.map(({ id, label }) => (
               <button key={id} type="button" onClick={() => setActiveCategory(id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeCategory === id ? "bg-teal-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
+                  activeCategory === id
+                    ? "bg-teal-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 active:bg-slate-200"
                 }`}>
                 {label}
               </button>
@@ -483,7 +518,7 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
         </div>
       )}
 
-      {/* ── 食品グリッド ─────────────────────────────────────── */}
+      {/* ── 食品グリッド ── */}
       {mode === "select" && (
         <div className="mx-auto max-w-md px-4 py-4">
           <div className="grid grid-cols-3 gap-3">
@@ -494,7 +529,7 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
                   if (portionMap.has(food.id)) {
                     setPortionMap((prev) => { const next = new Map(prev); next.delete(food.id); return next; });
                   } else {
-                    openModal(food);
+                    setModalFood(food);
                   }
                 }} />
             ))}
@@ -502,42 +537,52 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
         </div>
       )}
 
-      {/* ── 分量選択モーダル ──────────────────────────────────── */}
+      {/* ── 分量選択モーダル ── */}
       {modalFood && (
         <div
           className="fixed inset-0 z-30 flex items-end justify-center"
-          style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
           onClick={() => setModalFood(null)}
         >
           <div
-            className="w-full max-w-md bg-white rounded-t-3xl px-5 pt-5 pb-8 shadow-2xl"
+            className="w-full max-w-md bg-white rounded-t-3xl px-5 pt-5 pb-10 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* 掴みバー */}
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+
             <div className="flex items-center gap-3 mb-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={modalFood.image}
-                alt={modalFood.name}
-                className="w-14 h-14 object-cover rounded-xl border border-gray-100"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={modalFood.image}
+                  alt={modalFood.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.currentTarget as HTMLImageElement;
+                    el.style.display = "none";
+                  }}
+                />
+              </div>
               <div>
-                <p className="font-bold text-gray-800 text-base">{modalFood.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">分量を選んでください</p>
+                <p className="font-bold text-slate-800 text-lg">{modalFood.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">分量を選んでください</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 mb-4">
+
+            <div className="grid grid-cols-2 gap-2.5 mb-4">
               {getDefaultPortions(modalFood).map((portion) => (
                 <button
                   key={portion.label}
                   type="button"
                   onClick={() => selectPortion(modalFood, portion.amountG)}
-                  className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border-2 border-teal-200 bg-teal-50 hover:bg-teal-100 active:scale-95 transition-all"
+                  className="flex flex-col items-center justify-center py-4 px-3 rounded-2xl border-2 border-teal-200 bg-teal-50 active:bg-teal-100 active:scale-95 transition-all"
                 >
                   <span className="text-sm font-bold text-teal-700">{portion.label}</span>
                 </button>
               ))}
             </div>
+
             <button
               type="button"
               onClick={() => {
@@ -546,7 +591,7 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
                 }
                 setModalFood(null);
               }}
-              className="w-full py-3 rounded-2xl border border-gray-200 text-gray-500 text-sm font-semibold hover:bg-gray-50 active:scale-95 transition-all"
+              className="w-full py-3 rounded-2xl border border-slate-200 text-slate-500 text-sm font-semibold active:bg-slate-50 transition-all"
             >
               {modalFood && portionMap.has(modalFood.id) ? "選択を解除" : "キャンセル"}
             </button>
@@ -554,27 +599,27 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
         </div>
       )}
 
-      {/* ── 下部固定ボタン ────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 shadow-lg z-20">
+      {/* ── 下部固定ボタン ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-slate-100 px-4 py-3 shadow-lg z-20">
         <div className="mx-auto max-w-md space-y-1.5">
           {mode === "select" ? (
             <>
               {portionMap.size > 0 && (
-                <p className="text-center text-sm text-teal-600 font-medium">
-                  {portionMap.size}品選択中
+                <p className="text-center text-xs text-teal-600 font-semibold">
+                  <Check size={12} className="inline mr-1" />{portionMap.size}品選択中
                 </p>
               )}
               <button
                 type="button"
                 onClick={handleSaveSelect}
                 disabled={portionMap.size === 0}
-                className={`w-full rounded-2xl py-4 text-lg font-bold transition-all ${
+                className={`w-full rounded-2xl py-4 text-base font-bold transition-all duration-150 ${
                   portionMap.size > 0
-                    ? "bg-teal-600 text-white shadow-md hover:bg-teal-700 active:scale-[0.98]"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    ? "bg-teal-600 text-white shadow-md active:bg-teal-700 active:scale-[0.98]"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
                 }`}
               >
-                {portionMap.size === 0 ? "食材を選んでください" : "食事を保存する"}
+                {portionMap.size === 0 ? "食材を選んでください" : "この食事を保存する"}
               </button>
             </>
           ) : (
@@ -582,16 +627,15 @@ export default function MealRecorder({ stickyOffset = 57 }: { stickyOffset?: num
               type="button"
               onClick={handleSaveFree}
               disabled={parsedTokens.matched.length === 0 && parsedTokens.unknown.length === 0}
-              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-lg font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
+              className="w-full rounded-2xl bg-teal-600 py-4 text-white text-base font-bold shadow-md active:bg-teal-700 active:scale-[0.98] transition-all disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none"
             >
               {parsedTokens.matched.length === 0 && parsedTokens.unknown.length === 0
                 ? "食材を入力してください"
-                : "食事を保存する"}
+                : "この食事を保存する"}
             </button>
           )}
         </div>
       </div>
-
     </div>
   );
 }

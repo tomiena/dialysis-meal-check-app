@@ -2,6 +2,14 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ChevronLeft,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Info,
+  ChevronRight,
+} from "lucide-react";
 import { FOODS } from "@/lib/foods";
 import { judgeMeal, calculateTotals, type MealItem } from "@/lib/judge";
 import { generateDetailedAdvice } from "@/lib/advice";
@@ -16,29 +24,34 @@ const STATUS_LABEL: Record<Status, string> = {
   ng:      "多すぎ",
 };
 const STATUS_BG: Record<Status, string> = {
-  ok:      "bg-teal-50  text-teal-700  border-teal-200",
-  caution: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  ng:      "bg-red-50   text-red-700   border-red-200",
+  ok:      "bg-teal-50 text-teal-700 border-teal-200",
+  caution: "bg-amber-50 text-amber-700 border-amber-200",
+  ng:      "bg-red-50 text-red-700 border-red-200",
 };
 const BAR_COLOR: Record<Status, string> = {
   ok:      "bg-teal-400",
-  caution: "bg-yellow-400",
+  caution: "bg-amber-400",
   ng:      "bg-red-400",
 };
 const VALUE_COLOR: Record<Status, string> = {
   ok:      "text-teal-600",
-  caution: "text-yellow-600",
+  caution: "text-amber-600",
   ng:      "text-red-600",
 };
 const OVERALL_STYLE: Record<Status, string> = {
-  ok:      "bg-teal-50   border-teal-300   text-teal-800",
-  caution: "bg-yellow-50 border-yellow-300 text-yellow-800",
-  ng:      "bg-red-50    border-red-300    text-red-800",
+  ok:      "from-teal-600 to-teal-800",
+  caution: "from-amber-500 to-amber-700",
+  ng:      "from-red-500 to-red-700",
 };
 const OVERALL_LABEL: Record<Status, string> = {
   ok:      "よいバランスです",
   caution: "少し調整できると安心です",
   ng:      "気をつけたい内容です",
+};
+const OVERALL_ICON: Record<Status, React.ReactNode> = {
+  ok:      <CheckCircle2 size={28} className="text-white/80" />,
+  caution: <AlertTriangle size={28} className="text-white/80" />,
+  ng:      <XCircle size={28} className="text-white/80" />,
 };
 
 // ─── 栄養素バー ───────────────────────────────────────────
@@ -56,9 +69,9 @@ function NutrientRow({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
+        <span className="text-sm font-semibold text-slate-700">{label}</span>
         <div className="flex items-center gap-2">
-          <span className={`text-sm font-bold ${VALUE_COLOR[status]}`}>
+          <span className={`text-sm font-bold tabular-nums ${VALUE_COLOR[status]}`}>
             {value.toLocaleString()} {unit}
           </span>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${STATUS_BG[status]}`}>
@@ -66,19 +79,19 @@ function NutrientRow({
           </span>
         </div>
       </div>
-      <div className="h-3 bg-gray-100 rounded-full overflow-hidden relative">
+      <div className="h-3 bg-slate-100 rounded-full overflow-hidden relative">
         <div
-          className={`h-full rounded-full transition-all ${BAR_COLOR[status]}`}
+          className={`h-full rounded-full transition-all duration-500 ${BAR_COLOR[status]}`}
           style={{ width: `${pct}%` }}
         />
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-gray-300"
+          className="absolute top-0 bottom-0 w-0.5 bg-slate-300"
           style={{ left: `${(thresholds[0] / max) * 100}%` }}
         />
       </div>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-slate-400 tabular-nums">
         目標 {thresholds[0].toLocaleString()}{unit}以下
-        <span className="mx-1">/</span>
+        <span className="mx-1.5 text-slate-200">|</span>
         上限 {thresholds[1].toLocaleString()}{unit}
       </p>
     </div>
@@ -89,7 +102,7 @@ function NutrientRow({
 function localDateLabel(dateStr: string) {
   const [y, m, d] = dateStr.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("ja-JP", {
-    month: "long", day: "numeric",
+    month: "long", day: "numeric", weekday: "short",
   });
 }
 
@@ -117,15 +130,15 @@ function ResultContent() {
   const result         = items.length > 0 ? judgeMeal(items)        : null;
   const detailedAdvice = result ? generateDetailedAdvice(result, items) : null;
 
-  const overall = result?.overall ?? "ok";
+  const overall = (result?.overall ?? "ok") as Status;
 
   if (items.length === 0 && unknownFoods.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4 p-6">
-        <p className="text-gray-500">食品データが見つかりません</p>
-        <button type="button" onClick={() => router.push("/meal")}
+      <div className="min-h-screen bg-teal-50/50 flex flex-col items-center justify-center gap-4 p-6">
+        <p className="text-slate-500">食品データが見つかりません</p>
+        <button type="button" onClick={() => router.push("/")}
           className="rounded-xl bg-teal-600 px-6 py-3 text-white font-semibold">
-          食事選択に戻る
+          ホームに戻る
         </button>
       </div>
     );
@@ -139,29 +152,44 @@ function ResultContent() {
     || (detailedAdvice?.nextSteps.length    ?? 0) > 0;
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-32">
+    <main className="min-h-screen bg-teal-50/50 pb-32">
 
-      {/* ── ヘッダー ──────────────────────────────────────── */}
-      <header className="bg-white border-b px-5 py-4 sticky top-0 z-10 shadow-sm">
-        <div className="mx-auto max-w-md text-center">
-          <h1 className="text-xl font-bold text-gray-800">栄養評価</h1>
-          <p className="text-sm text-gray-500">{localDateLabel(dateParam)} の記録</p>
+      {/* ── グラデーションヘッダー ── */}
+      <header className={`bg-gradient-to-br ${OVERALL_STYLE[overall]} px-5 pt-10 pb-8`}>
+        <div className="mx-auto max-w-md">
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-1 text-white/70 text-sm mb-5 active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft size={18} />
+            ホームに戻る
+          </button>
+
+          <div className="flex items-start gap-4">
+            {OVERALL_ICON[overall]}
+            <div>
+              <p className="text-xs text-white/60 font-medium mb-0.5">
+                {localDateLabel(dateParam)} の栄養評価
+              </p>
+              <h1 className="text-2xl font-bold text-white">{OVERALL_LABEL[overall]}</h1>
+            </div>
+          </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-md px-4 py-5 space-y-4">
 
-        {/* ── 選んだ食品 ──────────────────────────────────── */}
-        <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-2">
+        {/* ── 選んだ食品 ── */}
+        <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-2">
           {items.length > 0 && (
             <>
-              <p className="text-sm font-semibold text-gray-600">選んだ食品</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">選んだ食品</p>
               <div className="flex flex-wrap gap-2">
                 {items.map((item, i) => (
-                  <span key={i} className="inline-flex items-center bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full">
+                  <span key={i} className="inline-flex items-center bg-slate-100 text-slate-700 text-sm px-3 py-1 rounded-full">
                     {item.food.name}
                     {item.amount !== 100 && (
-                      <span className="ml-1 text-gray-400 text-xs">{item.amount}g</span>
+                      <span className="ml-1 text-slate-400 text-xs tabular-nums">{item.amount}g</span>
                     )}
                   </span>
                 ))}
@@ -170,13 +198,13 @@ function ResultContent() {
           )}
 
           {unknownFoods.length > 0 && (
-            <div className={items.length > 0 ? "pt-2 border-t" : ""}>
-              <p className="text-xs font-semibold text-gray-400 mb-1.5">
+            <div className={items.length > 0 ? "pt-2 border-t border-slate-100" : ""}>
+              <p className="text-xs font-semibold text-slate-400 mb-1.5">
                 未登録の食品（栄養計算に含まれていません）
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {unknownFoods.map((u) => (
-                  <span key={u} className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
+                  <span key={u} className="text-xs bg-slate-100 text-slate-500 px-3 py-1 rounded-full">
                     {u}
                   </span>
                 ))}
@@ -185,19 +213,18 @@ function ResultContent() {
           )}
         </section>
 
-        {/* ── 総合評価 ────────────────────────────────────── */}
+        {/* ── 総合評価コメント ── */}
         {result && detailedAdvice && (
-          <div className={`rounded-2xl border-2 p-5 ${OVERALL_STYLE[overall as Status]}`}>
-            <p className="text-xs font-semibold mb-1 opacity-60">総合評価</p>
-            <p className="text-xl font-bold mb-2">{OVERALL_LABEL[overall as Status]}</p>
+          <div className={`rounded-2xl border-2 p-5 space-y-1 ${STATUS_BG[overall]}`}>
+            <p className="text-xs font-semibold opacity-60">アドバイス</p>
             <p className="text-sm leading-relaxed">{detailedAdvice.summary}</p>
           </div>
         )}
 
-        {/* ── 栄養素の内訳 ─────────────────────────────────── */}
+        {/* ── 栄養素の内訳 ── */}
         {result && totals && (
-          <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-4">
-            <p className="font-bold text-gray-800">栄養素の内訳</p>
+          <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4">
+            <p className="font-bold text-slate-800">栄養素の内訳</p>
             <NutrientRow
               label="水分"
               value={totals.water}
@@ -233,59 +260,62 @@ function ResultContent() {
           </section>
         )}
 
-        {/* ── コメント・次の一歩 ────────────────────────────── */}
+        {/* ── 詳しいコメント ── */}
         {detailedAdvice && hasAdviceContent && (
-          <section className="bg-white rounded-2xl border shadow-sm p-4 space-y-5">
-            <p className="font-bold text-gray-800">詳しいコメント</p>
+          <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4">
+            <p className="font-bold text-slate-800">詳しいコメント</p>
 
-            {/* 栄養素ごとのコメント */}
             {hasNutrientComments && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {detailedAdvice.nutrients.sodium && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500">塩分について</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{detailedAdvice.nutrients.sodium}</p>
+                  <div className="border-l-4 border-l-amber-300 pl-3 space-y-0.5">
+                    <p className="text-xs font-bold text-slate-500">塩分について</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{detailedAdvice.nutrients.sodium}</p>
                   </div>
                 )}
                 {detailedAdvice.nutrients.potassium && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500">カリウムについて</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{detailedAdvice.nutrients.potassium}</p>
+                  <div className="border-l-4 border-l-teal-300 pl-3 space-y-0.5">
+                    <p className="text-xs font-bold text-slate-500">カリウムについて</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{detailedAdvice.nutrients.potassium}</p>
                   </div>
                 )}
                 {detailedAdvice.nutrients.phosphorus && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500">リンについて</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{detailedAdvice.nutrients.phosphorus}</p>
+                  <div className="border-l-4 border-l-purple-300 pl-3 space-y-0.5">
+                    <p className="text-xs font-bold text-slate-500">リンについて</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{detailedAdvice.nutrients.phosphorus}</p>
                   </div>
                 )}
                 {detailedAdvice.nutrients.water && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500">水分について</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{detailedAdvice.nutrients.water}</p>
+                  <div className="border-l-4 border-l-blue-300 pl-3 space-y-0.5">
+                    <p className="text-xs font-bold text-slate-500">水分について</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{detailedAdvice.nutrients.water}</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* 組み合わせに注意 */}
             {detailedAdvice.combinations.length > 0 && (
               <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-2">
-                <p className="text-xs font-bold text-amber-700">この食事の組み合わせについて</p>
+                <div className="flex items-center gap-1.5">
+                  <AlertTriangle size={13} className="text-amber-600 flex-shrink-0" />
+                  <p className="text-xs font-bold text-amber-700">この食事の組み合わせについて</p>
+                </div>
                 {detailedAdvice.combinations.map((c, i) => (
-                  <p key={i} className="text-sm text-gray-700 leading-relaxed">{c}</p>
+                  <p key={i} className="text-sm text-slate-700 leading-relaxed">{c}</p>
                 ))}
               </div>
             )}
 
-            {/* 次の一歩 */}
             {detailedAdvice.nextSteps.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-bold text-teal-700">次の食事での一歩</p>
+                <div className="flex items-center gap-1.5">
+                  <ChevronRight size={14} className="text-teal-500" />
+                  <p className="text-xs font-bold text-teal-700">次の食事での一歩</p>
+                </div>
                 <ul className="space-y-2">
                   {detailedAdvice.nextSteps.map((step, i) => (
-                    <li key={i} className="flex gap-2 text-sm text-gray-700 leading-relaxed">
-                      <span className="text-teal-400 flex-shrink-0 mt-0.5">-</span>
+                    <li key={i} className="flex gap-2 text-sm text-slate-700 leading-relaxed">
+                      <span className="text-teal-400 flex-shrink-0 mt-0.5 font-bold">›</span>
                       <span>{step}</span>
                     </li>
                   ))}
@@ -295,25 +325,28 @@ function ResultContent() {
           </section>
         )}
 
-        {/* ── 食事量が少ない場合の注意 ─────────────────────── */}
+        {/* ── 食事量が少ない場合 ── */}
         {detailedAdvice?.lowIntakeNote && (
           <section className="bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-1">
-            <p className="text-xs font-bold text-blue-700">食事量について</p>
-            <p className="text-sm text-gray-700 leading-relaxed">{detailedAdvice.lowIntakeNote}</p>
+            <div className="flex items-center gap-1.5">
+              <Info size={13} className="text-blue-500" />
+              <p className="text-xs font-bold text-blue-700">食事量について</p>
+            </div>
+            <p className="text-sm text-slate-700 leading-relaxed">{detailedAdvice.lowIntakeNote}</p>
           </section>
         )}
 
-        {/* ── 基準値の目安 + 免責 ──────────────────────────── */}
-        <section className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
-          <p className="text-xs font-bold text-gray-500">1食あたりの目安（透析患者）</p>
-          <div className="grid grid-cols-2 gap-y-1 gap-x-4 text-xs text-gray-600">
-            <span>水分：1500ml以下が目標</span>
-            <span>塩分：700mg以下が目標</span>
-            <span>カリウム：550mg以下が目標</span>
-            <span>リン：220mg以下が目標</span>
+        {/* ── 基準値・免責 ── */}
+        <section className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-slate-500">1食あたりの目安（透析患者）</p>
+          <div className="grid grid-cols-2 gap-y-1.5 gap-x-4 text-xs text-slate-500 tabular-nums">
+            <span>水分：1500ml 以下が目標</span>
+            <span>塩分：700mg 以下が目標</span>
+            <span>カリウム：550mg 以下が目標</span>
+            <span>リン：220mg 以下が目標</span>
           </div>
           {detailedAdvice && (
-            <p className="text-xs text-gray-400 border-t border-gray-200 pt-3">
+            <p className="text-xs text-slate-400 border-t border-slate-200 pt-3 leading-relaxed">
               {detailedAdvice.disclaimer}
             </p>
           )}
@@ -321,15 +354,15 @@ function ResultContent() {
 
       </div>
 
-      {/* ── 下部ボタン ────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4 shadow-lg">
+      {/* ── 下部ボタン ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-slate-100 px-4 py-4 shadow-lg">
         <div className="mx-auto max-w-md">
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="w-full rounded-2xl bg-teal-600 py-4 text-white text-base font-bold shadow-md hover:bg-teal-700 active:scale-[0.98] transition-all"
+            className="w-full rounded-2xl bg-teal-600 py-4 text-white text-base font-bold shadow-md active:bg-teal-700 active:scale-[0.98] transition-all"
           >
-            食事選択へ戻る
+            ホームに戻る
           </button>
         </div>
       </div>
@@ -338,12 +371,15 @@ function ResultContent() {
   );
 }
 
-// ─── Suspense ラッパー ────────────────────────────────────
+// ─── Suspense ラッパー ─────────────────────────────────────
 export default function ResultPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+      <div className="min-h-screen bg-teal-50/50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-teal-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-400 text-sm">読み込み中...</p>
+        </div>
       </div>
     }>
       <ResultContent />
