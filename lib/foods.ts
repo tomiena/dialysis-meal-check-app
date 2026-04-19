@@ -405,35 +405,66 @@ export const FOODS: Food[] = [
     portions: [{ label: "1切れ(100g)", amountG: 100 }] },
 
   // ── 追加食材 ────────────────────────────────────────────
-  { id: "grilled_eel",      name: "うなぎの蒲焼き",   category: "prepared_food", image: "/images/foods/Grilled Eel (Kabayaki).png",             water: 55, sodium: 510, potassium: 300, phosphorus: 280,
+  // 根拠：日本食品標準成分表2020年版 + 透析患者栄養管理基準
+  { id: "grilled_eel",      name: "うなぎの蒲焼き",   category: "prepared_food", image: "/images/foods/Grilled Eel (Kabayaki).png",
+    // 文科省: うなぎかば焼き Na510/K300/P300。ビタミンA・D豊富。タレのナトリウムに注意
+    water: 55, sodium: 510, potassium: 300, phosphorus: 300,
     portions: [{ label: "1切れ(80g)", amountG: 80 }, { label: "1/2尾(100g)", amountG: 100 }, { label: "1尾(200g)", amountG: 200 }] },
-  { id: "sukiyaki",         name: "すき焼き",         category: "prepared_food", image: "/images/foods/Sukiyaki (Japanese Hot Pot).png",          water: 75, sodium: 450, potassium: 220, phosphorus: 120,
+  { id: "sukiyaki",         name: "すき焼き",         category: "prepared_food", image: "/images/foods/Sukiyaki (Japanese Hot Pot).png",
+    // 割り下(醤油・砂糖・みりん)＋牛肉＋豆腐＋ねぎ混合。卵付きで食べる場合リン↑
+    water: 75, sodium: 480, potassium: 240, phosphorus: 130,
     portions: [{ label: "少なめ(150g)", amountG: 150 }, { label: "1人前(300g)", amountG: 300 }] },
-  { id: "peperoncino",      name: "ペペロンチーノ",   category: "prepared_food", image: "/images/foods/Spaghetti Aglio e Olio.png",               water: 58, sodium: 250, potassium:  60, phosphorus:  85,
+  { id: "peperoncino",      name: "ペペロンチーノ",   category: "prepared_food", image: "/images/foods/Spaghetti Aglio e Olio.png",
+    // 茹でパスタ＋ニンニク＋オリーブ油＋塩。シンプルだが塩分あり
+    water: 58, sodium: 280, potassium:  80, phosphorus:  90,
     portions: [{ label: "少なめ(150g)", amountG: 150 }, { label: "普通(200g)", amountG: 200 }] },
-  { id: "melon_bread",      name: "メロンパン",       category: "grain",         image: "/images/foods/Melon Bread.png",                          water: 22, sodium: 280, potassium: 100, phosphorus:  80,
+  { id: "melon_bread",      name: "メロンパン",       category: "grain",         image: "/images/foods/Melon Bread.png",
+    // 文科省: メロンパン。クッキー生地の糖質・リンに注意
+    water: 22, sodium: 280, potassium: 100, phosphorus:  80,
     portions: [{ label: "1個(100g)", amountG: 100 }, { label: "大きめ1個(130g)", amountG: 130 }] },
-  { id: "dinner_roll",      name: "ロールパン",       category: "grain",         image: "/images/foods/Dinner Rolls.png",                         water: 30, sodium: 490, potassium: 100, phosphorus:  90,
+  { id: "dinner_roll",      name: "ロールパン",       category: "grain",         image: "/images/foods/Dinner Rolls.png",
+    // 文科省: ロールパン Na490/K110/P90。食パンより小型でつい複数個食べやすい点に注意
+    water: 30, sodium: 490, potassium: 110, phosphorus:  90,
     portions: [{ label: "1個(30g)", amountG: 30 }, { label: "2個(60g)", amountG: 60 }, { label: "3個(90g)", amountG: 90 }] },
-  { id: "kasu_jiru",        name: "粕汁",             category: "soup",          image: "/images/foods/Sake Lees Soup (Kasu-jiru).png",           water: 87, sodium: 500, potassium: 160, phosphorus:  65,
+  { id: "kasu_jiru",        name: "粕汁",             category: "soup",          image: "/images/foods/Sake Lees Soup (Kasu-jiru).png",
+    // 酒粕(リン81mg/100g)＋みそ＋根菜類。汁を飲む量で水分・塩分が大きく変わる
+    water: 87, sodium: 500, potassium: 160, phosphorus:  80,
     portions: [{ label: "全部飲んだ", amountG: 200 }, { label: "半分", amountG: 100 }, { label: "少しだけ", amountG: 50 }] },
-  { id: "ikanago_ame",      name: "いかなご（飴煮）", category: "fish",          image: "/images/foods/Candied Sand Lance (Ikanago).png",         water: 22, sodium: 2500, potassium: 150, phosphorus: 520,
+  { id: "ikanago_ame",      name: "いかなご（飴煮）", category: "fish",          image: "/images/foods/Candied Sand Lance (Ikanago).png",
+    // 小魚を骨ごと食べる→リン・カルシウム極めて高い。春の風物詩だが透析患者は少量に
+    water: 22, sodium: 2200, potassium: 200, phosphorus: 460,
     portions: [{ label: "小匙1(10g)", amountG: 10 }, { label: "大匙1(20g)", amountG: 20 }, { label: "小皿(40g)", amountG: 40 }] },
-  { id: "hamburger",        name: "ハンバーガー",     category: "prepared_food", image: "/images/foods/Hamburger.png",                            water: 48, sodium: 500, potassium: 170, phosphorus: 140,
+  { id: "hamburger",        name: "ハンバーガー",     category: "prepared_food", image: "/images/foods/Hamburger.png",
+    // バンズ＋パティ＋ソース。ファストフードはリン添加物含有の場合あり
+    water: 48, sodium: 500, potassium: 170, phosphorus: 140,
     portions: [{ label: "1個(100g)", amountG: 100 }, { label: "大きめ1個(150g)", amountG: 150 }] },
-  { id: "sashimi_mori",     name: "刺身盛り合わせ",   category: "fish",          image: "/images/foods/Assorted Sashimi.png",                     water: 72, sodium:  60, potassium: 360, phosphorus: 230,
+  { id: "sashimi_mori",     name: "刺身盛り合わせ",   category: "fish",          image: "/images/foods/Assorted Sashimi.png",
+    // 生魚(マグロ・サーモン等)の平均値。醤油をつけない場合はNa低め。K・P注意
+    water: 72, sodium:  60, potassium: 360, phosphorus: 230,
     portions: [{ label: "少なめ(100g)", amountG: 100 }, { label: "普通(150g)", amountG: 150 }, { label: "多め(200g)", amountG: 200 }] },
-  { id: "ebi_chili",        name: "エビチリ",         category: "prepared_food", image: "/images/foods/Chili Shrimp.png",                         water: 70, sodium: 650, potassium: 210, phosphorus: 170,
+  { id: "ebi_chili",        name: "エビチリ",         category: "prepared_food", image: "/images/foods/Chili Shrimp.png",
+    // えび＋チリソース(ケチャップ・豆板醤)。ソースのナトリウムが主な塩分源
+    water: 70, sodium: 650, potassium: 210, phosphorus: 170,
     portions: [{ label: "少なめ(80g)", amountG: 80 }, { label: "普通(120g)", amountG: 120 }, { label: "多め(160g)", amountG: 160 }] },
-  { id: "hot_dog",          name: "ホットドッグ",     category: "prepared_food", image: "/images/foods/Hot Dog.png",                              water: 50, sodium: 650, potassium: 160, phosphorus: 130,
+  { id: "hot_dog",          name: "ホットドッグ",     category: "prepared_food", image: "/images/foods/Hot Dog.png",
+    // バン＋ソーセージ＋ケチャップ/マスタード。加工肉のリン添加物に注意
+    water: 50, sodium: 650, potassium: 160, phosphorus: 130,
     portions: [{ label: "1本(120g)", amountG: 120 }, { label: "大きめ1本(150g)", amountG: 150 }] },
-  { id: "pork_shabu",       name: "豚しゃぶしゃぶ鍋", category: "prepared_food", image: "/images/foods/Pork Shabu-Shabu.png",                     water: 70, sodium: 280, potassium: 280, phosphorus: 170,
+  { id: "pork_shabu",       name: "豚しゃぶしゃぶ鍋", category: "prepared_food", image: "/images/foods/Pork Shabu-Shabu.png",
+    // 豚薄切り＋野菜＋つけダレ含む。ポン酢/ごまダレで塩分差大。白菜でK↑
+    water: 70, sodium: 280, potassium: 280, phosphorus: 170,
     portions: [{ label: "少なめ(150g)", amountG: 150 }, { label: "1人前(250g)", amountG: 250 }] },
-  { id: "motsunabe",        name: "モツ鍋",           category: "prepared_food", image: "/images/foods/Offal Hot Pot (Motsunabe).png",            water: 82, sodium: 400, potassium: 180, phosphorus: 140,
+  { id: "motsunabe",        name: "モツ鍋",           category: "prepared_food", image: "/images/foods/Offal Hot Pot (Motsunabe).png",
+    // 豚・牛モツ(内臓)はリン・カリウム高め。ニラ・キャベツ追加でさらにK↑
+    water: 82, sodium: 400, potassium: 200, phosphorus: 190,
     portions: [{ label: "少なめ(150g)", amountG: 150 }, { label: "1人前(300g)", amountG: 300 }] },
-  { id: "cup_noodle",       name: "カップヌードル",   category: "prepared_food", image: "/images/foods/Instant Cup Noodles.png",                  water: 88, sodium: 1100, potassium:  80, phosphorus:  60,
+  { id: "cup_noodle",       name: "カップヌードル",   category: "prepared_food", image: "/images/foods/Instant Cup Noodles.png",
+    // 1個77g→食塩4.3g相当。スープを飲まなくても麺にNa染み込む。透析患者は要注意
+    water: 88, sodium: 1100, potassium:  80, phosphorus:  60,
     portions: [{ label: "半分(145g)", amountG: 145 }, { label: "1個(290g)", amountG: 290 }] },
-  { id: "carbonara",        name: "カルボナーラパスタ",category: "prepared_food", image: "/images/foods/Spaghetti Carbonara.png",                  water: 53, sodium: 430, potassium: 100, phosphorus: 140,
+  { id: "carbonara",        name: "カルボナーラパスタ",category: "prepared_food", image: "/images/foods/Spaghetti Carbonara.png",
+    // パスタ＋卵＋チーズ＋ベーコン。チーズ・卵でリン高め。クリーム系より乳製品P↑
+    water: 53, sodium: 430, potassium: 120, phosphorus: 160,
     portions: [{ label: "少なめ(150g)", amountG: 150 }, { label: "普通(200g)", amountG: 200 }] },
 ];
 
